@@ -55,13 +55,12 @@ export function useParticipantAuth() {
             });
             return false;
         }
-
         setLoading(true);
         setError(null);
 
         try {
             // API call to verify participant credentials
-            const response = await fetch("/api/participants/verify", {
+            const response = await fetch("/api/dashboard/participants/verify", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

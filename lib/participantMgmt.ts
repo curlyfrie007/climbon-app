@@ -161,15 +161,15 @@ export async function verifyParticipantCredentials(
     secret: string
 ): Promise<Participant | null> {
     try {
-        // First, find participants by name
-        const response = await fetch(`/api/dashboard/participants/by-name?name=${encodeURIComponent(name)}`);
-
-        if (!response.ok) {
-            console.error('Error fetching participants by name:', response.status);
-            return null;
-        }
-
-        const participants = await response.json();
+        // Instead of using fetch, directly query the database
+        const participants = await prisma.participant.findMany({
+            where: {
+                name: {
+                    contains: name,
+                    mode: 'insensitive'
+                }
+            }
+        });
 
         // If no participants found with that name
         if (!participants || participants.length === 0) {
@@ -178,10 +178,15 @@ export async function verifyParticipantCredentials(
 
         // Find the participant with matching secret
         const verifiedParticipant = participants.find(
-            (p: Participant) => p.secret === secret
+            (p) => p.secret === secret
         );
 
-        return verifiedParticipant || null;
+        if (!verifiedParticipant) return null;
+
+        return {
+            ...verifiedParticipant,
+            results: verifiedParticipant.results as unknown as Result,
+        };
     } catch (error) {
         console.error('Error verifying participant credentials:', error);
         return null;
@@ -195,20 +200,20 @@ export async function verifyParticipantCredentials(
  */
 export async function getParticipantsByName(name: string): Promise<Participant[]> {
     try {
-        // Implementation depends on your data storage method
-        // Example using database query or API call
-        const response = await fetch(`/api/dashboard/participants`);
+        // Query the database directly instead of using fetch
+        const participants = await prisma.participant.findMany({
+            where: {
+                name: {
+                    contains: name,
+                    mode: 'insensitive'
+                }
+            }
+        });
 
-        if (!response.ok) {
-            throw new Error(`Failed to fetch participants: ${response.status}`);
-        }
-
-        const allParticipants = await response.json();
-
-        // Filter participants by name (case insensitive partial match)
-        return allParticipants.filter((p: Participant) =>
-            p.name.toLowerCase().includes(name.toLowerCase())
-        );
+        return participants.map(p => ({
+            ...p,
+            results: p.results as unknown as Result,
+        }));
     } catch (error) {
         console.error('Error fetching participants by name:', error);
         return [];

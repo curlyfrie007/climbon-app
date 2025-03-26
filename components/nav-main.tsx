@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronRight, MailIcon, PlusCircleIcon, type LucideIcon } from "lucide-react"
+import { ChevronRight, Home, MailIcon, PlusCircleIcon, type LucideIcon } from "lucide-react"
 
 import {
   Collapsible,
@@ -35,18 +35,27 @@ export function NavMain({
 }) {
   return (
     <SidebarGroup>
+      <SidebarMenuItem key="dashboard" className="pb-4">
+        <SidebarMenuButton asChild>
+          <a href="/dashboard">
+            <Home />
+            <span>Dashboard</span>
+          </a>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      <SidebarGroupLabel>Wettkämpfe</SidebarGroupLabel>
       <SidebarMenu>
+
         <SidebarMenuItem className="flex items-center gap-2">
           <SidebarMenuButton
             tooltip="Create New"
-            className="min-w-8 bg-slate-950 text-primary-foreground duration-200 ease-linear hover:bg-primary/90 hover:text-primary-foreground hover:cursor-pointer active:bg-primary/90 active:text-primary-foreground"
+            className="min-w-8 bg-white border-1 shadow-2xl text-black duration-200 ease-linear hover:bg-neutral-200  hover:cursor-pointer active:bg-primary/90 active:text-primary-foreground"
           >
             <PlusCircleIcon />
             <span>Create New</span>
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarMenu>
-      <SidebarGroupLabel>Wettkämpfe</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
@@ -63,7 +72,7 @@ export function NavMain({
                   <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                 </SidebarMenuButton>
               </CollapsibleTrigger>
-              {/* <CollapsibleContent>
+              <CollapsibleContent>
                 <SidebarMenuSub>
                   {item.items?.map((subItem) => (
                     <SidebarMenuSubItem key={subItem.title}>
@@ -75,7 +84,7 @@ export function NavMain({
                     </SidebarMenuSubItem>
                   ))}
                 </SidebarMenuSub>
-              </CollapsibleContent> */}
+              </CollapsibleContent>
             </SidebarMenuItem>
           </Collapsible>
         ))}

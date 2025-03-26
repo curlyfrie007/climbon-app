@@ -65,11 +65,12 @@ export function LeaderboardTable() {
     }
 
     return (
-        <Card className="w-full">
+        <>
+            {/* <h1 className="text-4xl text-bold">Ergebnisse</h1> */}
             <CardHeader>
-                <CardTitle>Rangliste</CardTitle>
+                <CardTitle></CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-0 pt-4">
                 {loading ? (
                     <div className="flex justify-center p-4">Lädt...</div>
                 ) : error ? (
@@ -109,6 +110,6 @@ export function LeaderboardTable() {
                     </div>
                 )}
             </CardContent>
-        </Card>
+        </>
     )
 }

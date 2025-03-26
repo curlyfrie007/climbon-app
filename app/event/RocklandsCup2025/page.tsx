@@ -26,6 +26,7 @@ import {
 import { NavigationBar } from "@/components/navigation-bar"
 import { Calendar, Trophy } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { LeaderboardTable } from "@/components/dashboard/leaderboard";
 
 const eventInfo = {
     "title": "Rocklands Cup 2025",
@@ -37,13 +38,6 @@ export default function Page() {
     const pathname = usePathname()
     return (
         <div>
-            <div className="py-4 flex flex-row items-center gap-5 px-6 md:px-10">
-                <h2 className="h-min text-center font-bold leading-tight tracking-tighter text-2xl md:text-3xl">ClimbOn</h2>
-                <div className="hidden md:block ">
-
-                </div>
-            </div>
-            <Separator></Separator>
             <section className="grid items-center gap-6 pb-8 w-screen">
                 <div className="flex flex-col items-start w-screen">
                     <div>
@@ -77,7 +71,7 @@ export default function Page() {
                         </div>
                         <Separator></Separator>
                     </div>
-                    <div className="px-6 md:px-20 lg:px-40 flex flex-col w-screen">
+                    <div className="px-4 md:px-20 lg:px-40 flex flex-col w-screen pt-6">
                         {/* <Card className="-mt-14">
                             <CardHeader>
                                 <CardTitle>Wann?</CardTitle>
@@ -99,7 +93,8 @@ export default function Page() {
                                 <h1>Infos</h1>
                             </div>
                         </div> */}
-
+                        <h1 className="text-4xl text-bold">Teilnehmer</h1>
+                        <LeaderboardTable></LeaderboardTable>
                     </div>
                 </div>
 

@@ -57,25 +57,13 @@ const data = {
   navMain: [
     {
       title: "Rocklands Cup 2025",
-      url: "#",
+      url: "/dashboard/event/RocklandsCup2025",
       icon: ChartNoAxesGantt,
-      isActive: true,
+      isActive: false,
       items: [
         {
           title: "Übersicht",
-          url: "/dashboard/event/[event]/overview"
-        },
-        {
-          title: "Teilnehmer",
-          url: "/dashboard/event/[event]/overview"
-        },
-        {
-          title: "Ergebnisse",
-          url: "#"
-        },
-        {
-          title: "Statistik",
-          url: "#"
+          url: "/dashboard/event/RocklandsCup2025"
         },
       ]
     },

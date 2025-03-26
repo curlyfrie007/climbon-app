@@ -37,6 +37,7 @@ export default function ParticipantLogin() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
+        console.log(name + secret)
         const success = await login(name, secret)
         if (success) {
             // Redirect to the editor
@@ -46,8 +47,9 @@ export default function ParticipantLogin() {
 
     return (
         <div className="container mx-auto py-10">
+            <h1 className="px-6 text-2xl font-bold">Rocklands Cup 2025</h1>
             <div className="max-w-md mx-auto">
-                <Card>
+                <Card className="shadow-none border-0">
                     <CardHeader>
                         <CardTitle>Teilnehmer Anmeldung</CardTitle>
                         <CardDescription>
@@ -67,11 +69,11 @@ export default function ParticipantLogin() {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="secret">Geheimcode</Label>
+                                <Label htmlFor="secret">Zugangsschlüssel</Label>
                                 <Input
                                     id="secret"
                                     type="text"
-                                    placeholder="Ihr Geheimcode"
+                                    placeholder="Ihr Schlüssel"
                                     value={secret}
                                     onChange={(e) => setSecret(e.target.value)}
                                     required
@@ -83,12 +85,12 @@ export default function ParticipantLogin() {
                                 </div>
                             )}
                         </CardContent>
-                        <CardFooter className="flex flex-col space-y-4">
-                            <Button className="w-full" type="submit" disabled={loading}>
+                        <CardFooter className="flex flex-col space-y-4 mt-2">
+                            <Button className="w-full mt-4" type="submit" disabled={loading}>
                                 {loading ? "Anmeldung läuft..." : "Anmelden"}
                             </Button>
                             <div className="text-sm text-center">
-                                <p>Noch nicht registriert? <Link href="/participant/register" className="text-blue-600 hover:underline">Jetzt registrieren</Link></p>
+                                <p>Noch nicht registriert? <Link href="/event/RocklandsCup2025/participant/register" className="text-blue-500 font-bold hover:underline">Jetzt registrieren</Link></p>
                             </div>
                         </CardFooter>
                     </form>

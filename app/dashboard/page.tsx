@@ -1,6 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
-import { DataTable } from "@/components/data-table"
+import { ClimbingEventsTable } from "@/components/data-table"
 import { SiteHeader } from "@/components/site-header"
 import {
     SidebarInset,
@@ -19,7 +19,7 @@ export default function Page() {
                         <p className="px-4 lg:px-6 pt-1 max-w-[700px] text-lg text-muted-foreground">Wilkommen zurück bei ClimbOn.</p>
                     </div>
 
-                    <DataTable data={data} />
+                    <ClimbingEventsTable data={data} />
                 </div>
             </div>
         </div>

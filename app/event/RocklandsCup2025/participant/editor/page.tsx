@@ -22,6 +22,7 @@ import {
 import { toast } from "sonner"
 import Cookies from "js-cookie"
 import { useParticipant, useUpdateParticipantResults, Result } from "@/hooks/useParticipants"
+import { Separator } from "@/components/ui/separator"
 
 export default function ParticipantEditor() {
     const router = useRouter()
@@ -36,10 +37,10 @@ export default function ParticipantEditor() {
                 setSessionData(parsedSession)
             } catch (error) {
                 console.error("Failed to parse session cookie:", error)
-                router.push("/participant/login")
+                router.push("/event/RocklandsCup2025/participant/login")
             }
         } else {
-            router.push("/participant/login")
+            router.push("/event/RocklandsCup2025/participant/login")
         }
     }, [router])
 
@@ -102,7 +103,7 @@ export default function ParticipantEditor() {
         toast("Abgemeldet", {
             description: "Sie wurden erfolgreich abgemeldet."
         })
-        router.push("/participant/login")
+        router.push("/event/RocklandsCup2025/participant/login")
     }
 
     // If loading, show loading state
@@ -120,6 +121,7 @@ export default function ParticipantEditor() {
     if (!participant) {
         return (
             <div className="container mx-auto py-10">
+
                 <Card>
                     <CardHeader>
                         <CardTitle>Fehler</CardTitle>
@@ -138,41 +140,21 @@ export default function ParticipantEditor() {
     }
 
     return (
-        <div className="container mx-auto py-10">
-            <Card className="mb-6">
+        <div className="container mx-auto py-4 ">
+            <h1 className="px-6 text-lg font-bold">Rocklands Cup 2025</h1>
+
+            <Card className="mb-6 border-0 shadow-none">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <div>
-                        <CardTitle>Deine Ergebnisse</CardTitle>
+                        <CardTitle className="text-3xl">Hallo, {participant.name}!</CardTitle>
                         <CardDescription>
-                            Hallo {participant.name}, hier kannst du deine Ergebnisse eintragen oder ändern.
+                            Hier kannst du deine Ergebnisse eintragen, einsehen und aktualisieren.
                         </CardDescription>
                     </div>
-                    <Button variant="outline" onClick={handleLogout}>
-                        Abmelden
-                    </Button>
                 </CardHeader>
-                <CardContent>
-                    <p className="mb-4">
-                        <strong>Startklasse:</strong> {formatStartClass(participant.startclass)}
-                    </p>
 
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-                        {Array.from({ length: 8 }, (_, i) => i + 1).map(routeNumber => (
-                            <RouteCard
-                                key={routeNumber}
-                                routeNumber={routeNumber}
-                                routeData={participant.results[`Route${routeNumber}` as keyof Result]}
-                                onUpdate={handleRouteUpdate}
-                                isUpdating={updateLoading}
-                            />
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
-
-            <Card>
                 <CardHeader>
-                    <CardTitle>Gesamtergebnis</CardTitle>
+                    <CardTitle>Dein Gesamtergebnis</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-2 gap-4">
@@ -186,13 +168,38 @@ export default function ParticipantEditor() {
                         </div>
                     </div>
                 </CardContent>
-                <CardFooter className="flex justify-center">
+
+                <CardContent>
+                    <Separator />
+                </CardContent>
+
+                <CardContent>
+                    {/* <p className="mb-4">
+                        <strong>Startklasse:</strong> {formatStartClass(participant.startclass)}
+                    </p> */}
+
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                        {Array.from({ length: 8 }, (_, i) => i + 1).map(routeNumber => (
+                            <RouteCard
+                                key={routeNumber}
+                                routeNumber={routeNumber}
+                                routeData={participant.results[`Route${routeNumber}` as keyof Result]}
+                                onUpdate={handleRouteUpdate}
+                                isUpdating={updateLoading}
+                            />
+                        ))}
+                    </div>
+                </CardContent>
+                <CardFooter className="flex flex-col items-stretch justify-start gap-2">
                     <Button
-                        variant="outline"
+                        variant="default"
                         onClick={() => router.push("/")}
                         className="w-full md:w-auto"
                     >
                         Zur Hauptseite
+                    </Button>
+                    <Button variant="outline" className="text-red-500" onClick={handleLogout}>
+                        Abmelden
                     </Button>
                 </CardFooter>
             </Card>

@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header"
 import {
     SidebarInset,
     SidebarProvider,
+    SidebarTrigger,
 } from "@/components/ui/sidebar"
 
 import data from "./data.json"
@@ -22,7 +23,7 @@ export default function DashboardLayout({ children, }: { children: React.ReactNo
         >
             <AppSidebar variant="sidebar" />
             <SidebarInset className="max-h-screen">
-                {/* <SiteHeader /> */}
+                <SiteHeader />
                 {children}
             </SidebarInset>
         </SidebarProvider>

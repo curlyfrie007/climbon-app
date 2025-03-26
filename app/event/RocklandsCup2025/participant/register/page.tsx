@@ -23,6 +23,7 @@ import {
 import { toast } from "sonner"
 import { useCreateParticipant, StartClassType } from "@/hooks/useParticipants"
 import Cookies from "js-cookie"
+import Link from "next/link"
 
 // Function to generate a random string for participant secret
 const generateSecret = () => {
@@ -95,13 +96,16 @@ export default function ParticipantRegistration() {
 
     return (
         <div className="container mx-auto py-10">
+            <h1 className="px-6 text-2xl font-bold">Rocklands Cup 2025</h1>
             <div className="max-w-md mx-auto">
                 {!isSubmitted ? (
-                    <Card>
+                    <Card className="shadow-none border-0">
                         <CardHeader>
                             <CardTitle>Teilnehmer Registrierung</CardTitle>
                             <CardDescription>
-                                Bitte füllen Sie das Formular aus, um sich für den Wettbewerb zu registrieren.
+                                <p>Bitte füllen Sie das Formular aus, um sich für den Wettbewerb zu registrieren.</p>
+                                <br />
+                                <p>Falls du bereits registriert bist kommst du hier zur <Link href="/event/RocklandsCup2025/participant/login" className="text-blue-500 font-bold hover:underline">Anmeldung</Link></p>
                             </CardDescription>
                         </CardHeader>
                         <form onSubmit={handleSubmit}>
@@ -145,7 +149,7 @@ export default function ParticipantRegistration() {
                                 </div>
                             </CardContent>
                             <CardFooter>
-                                <Button className="w-full" type="submit" disabled={loading}>
+                                <Button className="w-full mt-4" type="submit" disabled={loading}>
                                     {loading ? "Registrierung läuft..." : "Registrieren"}
                                 </Button>
                             </CardFooter>
