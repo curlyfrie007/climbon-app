@@ -20,10 +20,10 @@ export default function DashboardLayout({ children, }: { children: React.ReactNo
                 } as React.CSSProperties
             }
         >
-            <AppSidebar variant="inset" />
-            <SidebarInset>
+            <AppSidebar variant="sidebar" />
+            <SidebarInset className="max-h-screen">
                 {/* <SiteHeader /> */}
-                <main>{children}</main>
+                {children}
             </SidebarInset>
         </SidebarProvider>
     )

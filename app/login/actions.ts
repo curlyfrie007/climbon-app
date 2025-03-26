@@ -4,8 +4,12 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { LoginFormSchema, FormStateLogin } from '@/app/_lib/definitions'; // Import login schema
 import { createSession } from '@/app/_lib/sessions';
+import { redirect } from 'next/navigation';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
+
 
 export async function login(state: FormStateLogin, formData: FormData): Promise<FormStateLogin> {
     const formValues = {
@@ -56,11 +60,12 @@ export async function login(state: FormStateLogin, formData: FormData): Promise<
             errors: {},
             values: { email: "", password: "" },
             message: "Login successful", // Success message
+            redirectTo: "/dashboard",
         };
     } catch (error: any) {
         console.error("Error during login:", error);
         return {
-            errors: { email: ["Something went wrong during login."] },
+            message: "Something went wrong during login.",
             values: formValues,
         };
     }

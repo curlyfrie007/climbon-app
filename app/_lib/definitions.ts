@@ -46,7 +46,6 @@ export type FormStateLogin =
     }
     | undefined;
 
-
 // Login Schema
 export const LoginFormSchema = z.object({
     email: z.string().email("Invalid email format"),

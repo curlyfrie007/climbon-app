@@ -59,7 +59,7 @@ const data = {
       title: "Rocklands Cup 2025",
       url: "#",
       icon: ChartNoAxesGantt,
-      isActive: false,
+      isActive: true,
       items: [
         {
           title: "Übersicht",
@@ -126,23 +126,6 @@ const data = {
           url: "#",
         },
       ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
     },
   ],
   archive: [

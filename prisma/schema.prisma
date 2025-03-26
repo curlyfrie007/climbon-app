@@ -22,3 +22,18 @@ model Admins {
   createdAt DateTime @default(now())
 }
 
+enum Startclass {
+  Maennlich       @map("Männlich")
+  Weiblich
+  Maennlich_Ue40  @map("Männlich Ü40")
+  Weiblich_Ue40   @map("Weiblich Ü40")
+}
+
+model Participant {
+  id               String     @id @default(uuid())
+  name             String
+  registrationDate DateTime
+  secret           String
+  startclass       Startclass
+  results          Json       @default("{\"Route1\":{\"zone\":0,\"attempts\":0},\"Route2\":{\"zone\":0,\"attempts\":0},\"Route3\":{\"zone\":0,\"attempts\":0},\"Route4\":{\"zone\":0,\"attempts\":0},\"Route5\":{\"zone\":0,\"attempts\":0},\"Route6\":{\"zone\":0,\"attempts\":0},\"Route7\":{\"zone\":0,\"attempts\":0},\"Route8\":{\"zone\":0,\"attempts\":0}}")
+}
