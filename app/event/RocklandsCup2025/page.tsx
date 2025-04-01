@@ -65,7 +65,7 @@ export default function Page() {
                             </Link>
                         </div> */}
                             <div className="flex gap-2 pt-5">
-                                <Link href={pathname + "/participant/register"}><Button>Anmeldung</Button></Link>
+                                <Link href={pathname + "/participant/register"}><Button>Registrierung</Button></Link>
                                 <Link href={pathname + "/participant/editor"}><Button variant={"outline"}>zum Ergebnisportal</Button></Link>
                             </div>
                         </div>

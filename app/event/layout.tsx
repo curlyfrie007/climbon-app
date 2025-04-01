@@ -16,7 +16,7 @@ export default function RootLayout({
         <html lang="en">
             <body>
                 <div className="py-4 flex flex-row items-center gap-5 px-6 md:px-10">
-                    <h2 className="h-min text-center font-bold leading-tight tracking-tighter text-2xl md:text-3xl">ClimbOn</h2>
+                    <h2 className="h-min text-center font-bold leading-tight tracking-tighter text-2xl md:text-3xl">NextIsAJug</h2>
                     <div className="hidden md:block ">
 
                     </div>

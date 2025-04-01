@@ -15,8 +15,8 @@ export default function Page() {
             <div className="@container/main flex flex-1 flex-col gap-2">
                 <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
                     <div>
-                        <h1 className="px-4 lg:px-6 pt-4 text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">Hey, Dean!</h1>
-                        <p className="px-4 lg:px-6 pt-1 max-w-[700px] text-lg text-muted-foreground">Wilkommen zurück bei ClimbOn.</p>
+                        <h1 className="px-4 lg:px-6 pt-4 text-3xl font-extrabold leading-tight tracking-tighter md:text-4xl">Hey, Tommy!</h1>
+                        <p className="px-4 lg:px-6 pt-1 max-w-[700px] text-lg text-muted-foreground">Wilkommen zurück!</p>
                     </div>
 
                     <ClimbingEventsTable data={data} />

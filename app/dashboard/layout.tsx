@@ -1,7 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
-import { DataTable } from "@/components/data-table"
-import { SectionCards } from "@/components/section-cards"
 import { SiteHeader } from "@/components/site-header"
 import {
     SidebarInset,
@@ -10,6 +8,7 @@ import {
 } from "@/components/ui/sidebar"
 
 import data from "./data.json"
+import { Suspense } from "react"
 
 export default function DashboardLayout({ children, }: { children: React.ReactNode }) {
     return (
@@ -24,7 +23,9 @@ export default function DashboardLayout({ children, }: { children: React.ReactNo
             <AppSidebar variant="sidebar" />
             <SidebarInset className="max-h-screen">
                 <SiteHeader />
+                <Suspense fallback="<p>Loading</p>">
                 {children}
+                </Suspense>
             </SidebarInset>
         </SidebarProvider>
     )

@@ -34,6 +34,7 @@ import {
 import { TeamSwitcher } from "./team-switcher"
 import { url } from "inspector"
 import { Folder, ChartNoAxesGantt, UsersRound, Users } from "lucide-react"
+import { Separator } from "./ui/separator"
 
 const data = {
   user: {
@@ -143,6 +144,8 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
+      {/*<h1 className="font-bold text-3xl px-3 py-3 text-slate-700">NextisaJUG</h1>
+      <Separator></Separator>*/}
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>

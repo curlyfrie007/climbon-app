@@ -13,7 +13,7 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal, Trash2, Plus } from "lucide-react"
+import { ArrowUpDown, ChevronDown, MoreHorizontal, Trash2, Plus, Copy } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -77,6 +77,7 @@ import { useParticipantManager, StartClassType, Result, useDeleteParticipant } f
 import { toast } from "sonner"
 import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight } from "@tabler/icons-react"
 import { Badge } from "../ui/badge"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
 
 export function ParticipantsTable() {
     // State for the table
@@ -144,9 +145,13 @@ export function ParticipantsTable() {
             default: return startclass;
         }
     }
+    const copyID = (id: string) => {
+        navigator.clipboard.writeText(id);
+    }
 
     // Define table columns
     const columns: ColumnDef<any>[] = [
+        //Select
         {
             id: "select",
             header: ({ table }) => (
@@ -169,13 +174,7 @@ export function ParticipantsTable() {
             enableSorting: true,
             enableHiding: false,
         },
-        {
-            accessorKey: "id",
-            header: "ID",
-            cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("id")}</div>
-            ),
-        },
+        //Name
         {
             accessorKey: "name",
             header: ({ column }) => {
@@ -191,6 +190,7 @@ export function ParticipantsTable() {
             },
             cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
         },
+        //Startclass
         {
             accessorKey: "startclass",
             header: ({ column }) => (
@@ -206,6 +206,7 @@ export function ParticipantsTable() {
                 return <div className="font-medium"><Badge variant={"outline"}>{formatStartClass(row.getValue("startclass"))}</Badge></div>
             },
         },
+        //Routes Completed
         {
             accessorKey: "routesCompleted",
             header: ({ column }) => (
@@ -223,6 +224,7 @@ export function ParticipantsTable() {
             },
             accessorFn: (row) => calculateRoutesCompleted(row),
         },
+        //Total Score
         {
             accessorKey: "totalScore",
             header: ({ column }) => (
@@ -240,6 +242,7 @@ export function ParticipantsTable() {
             },
             accessorFn: (row) => calculateTotalScore(row),
         },
+        //Rank
         {
             accessorKey: "rank",
             header: ({ column }) => (
@@ -266,6 +269,7 @@ export function ParticipantsTable() {
                 return -calculateTotalScore(row);
             },
         },
+        //Registration Date
         {
             accessorKey: "registrationDate",
             header: ({ column }) => (
@@ -290,6 +294,24 @@ export function ParticipantsTable() {
                 })}</div>
             },
         },
+        //ID
+        {
+            accessorKey: "id",
+            header: "ID",
+            cell: ({ row }) => (
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger>
+                            <div className="capitalize">{(String(row.getValue("id")).slice(0,8)+"...")}</div>
+                        </TooltipTrigger>
+                        <TooltipContent className="flex flex-row items-center gap-2">
+                            <p className="text-sm">{row.getValue("id")}</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+            ),
+        },
+        //Actions
         {
             id: "actions",
             enableHiding: false,

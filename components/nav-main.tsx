@@ -35,7 +35,7 @@ export function NavMain({
 }) {
   return (
     <SidebarGroup>
-      <SidebarMenuItem key="dashboard" className="pb-4">
+      <SidebarMenuItem key="dashboard" className="pb-4 list-none">
         <SidebarMenuButton asChild>
           <a href="/dashboard">
             <Home />
