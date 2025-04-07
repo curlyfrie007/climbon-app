@@ -231,7 +231,7 @@ function ClassLeaderboard({ startClass }: { startClass: StartClassType }) {
                     variant="outline"
                 >
                     <Download className="h-4 w-4 mr-2" /> 
-                    {isPdfGenerating ? 'Generiere PDF...' : 'PDF Download für'+formatStartClass(startClass)}
+                    {isPdfGenerating ? 'Generiere PDF...' : 'Startklasse '+formatStartClass(startClass)+' PDF'}
                 </Button>
             </CardHeader>
             <CardContent className="px-0 pt-4">
