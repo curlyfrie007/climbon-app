@@ -223,7 +223,7 @@ function ClassLeaderboard({ startClass }: { startClass: StartClassType }) {
 
     return (
         <>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-center justify-between px-0">
                 <CardTitle>{formatStartClass(startClass)}</CardTitle>
                 <Button 
                     onClick={handleDownloadPdf} 
@@ -611,7 +611,6 @@ export function LeaderboardTableDashboard() {
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold">Kletterwettkampf Leaderboard</h2>
                 <Button 
                     onClick={handleGenerateFullPdf} 
                     disabled={loading === true || !!error || isFullPdfGenerating}
