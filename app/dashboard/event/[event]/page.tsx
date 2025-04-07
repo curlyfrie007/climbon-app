@@ -7,6 +7,7 @@ import { LeaderboardTable } from '@/components/dashboard/leaderboard';
 import { Card } from '@/components/ui/card';
 import ParticipantManager from '@/components/participantmanager';
 import { CompetitionStatistics } from '@/components/dashboard/stats';
+import { LeaderboardTableDashboard } from '@/components/dashboard/leaderboardDashboard';
 
 
 
@@ -27,7 +28,7 @@ export default function Auth() {
                 </TabsContent>
                 <TabsContent value="results" className='w-max'>
                     <h1 className="text-4xl text-bold">Ergebnisse</h1>
-                    <LeaderboardTable></LeaderboardTable>
+                    <LeaderboardTableDashboard></LeaderboardTableDashboard>
                 </TabsContent>
                 <TabsContent value="stats">
                     <CompetitionStatistics></CompetitionStatistics>

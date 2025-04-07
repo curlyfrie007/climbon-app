@@ -290,7 +290,7 @@ const calculateTotalScore = (participant: any) => {
     return totalScore;
 }
 
-export function LeaderboardTable() {
+export function LeaderboardTableDashboard() {
     const [activeTab, setActiveTab] = React.useState("männlich");
     const [isFullPdfGenerating, setIsFullPdfGenerating] = React.useState(false);
     const { participants, loading, error } = useParticipants();
