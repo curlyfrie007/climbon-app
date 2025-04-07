@@ -27,7 +27,7 @@ export default function Auth() {
                     <ParticipantsTable></ParticipantsTable>
                 </TabsContent>
                 <TabsContent value="results" className='w-full'>
-                    <h1 className="text-4xl text-bold mb-2">Ergebnisse</h1>
+                    <h1 className="text-4xl text-bold mb-4">Ergebnisse</h1>
                     <LeaderboardTableDashboard></LeaderboardTableDashboard>
                 </TabsContent>
                 <TabsContent value="stats">
