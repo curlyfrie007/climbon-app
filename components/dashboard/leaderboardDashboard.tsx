@@ -93,7 +93,7 @@ function ClassLeaderboard({ startClass }: { startClass: StartClassType }) {
             const titleFontSize = 20;
             
             // Add title
-            page.drawText("Kletterwettkampf Leaderboard", {
+            page.drawText("Rocklands Cup 2025 Rangliste", {
                 x: 50,
                 y: page.getHeight() - 50,
                 size: titleFontSize,
@@ -387,7 +387,7 @@ export function LeaderboardTableDashboard() {
                 const titleFontSize = 20;
                 
                 // Add main title on first page only
-                page.drawText("Kletterwettkampf Gesamtergebnisse", {
+                page.drawText("Rocklands Cup 2025 Gesamtergebnisse", {
                     x: 50,
                     y: page.getHeight() - 50,
                     size: titleFontSize,
@@ -590,7 +590,7 @@ export function LeaderboardTableDashboard() {
             // Create a temporary link element
             const link = document.createElement('a');
             link.href = url;
-            link.download = `kletterwettkampf-gesamtergebnisse.pdf`;
+            link.download = `RocklandsCup2025 Gesamtergebnisse.pdf`;
             
             // Append to the document, click and remove
             document.body.appendChild(link);
