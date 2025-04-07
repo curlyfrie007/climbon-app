@@ -224,7 +224,6 @@ function ClassLeaderboard({ startClass }: { startClass: StartClassType }) {
     return (
         <>
             <CardHeader className="flex flex-row items-center justify-between px-0">
-                <CardTitle>{formatStartClass(startClass)}</CardTitle>
                 <Button 
                     onClick={handleDownloadPdf} 
                     disabled={loading === true || !!error || rankedParticipants.length === 0 || isPdfGenerating}
@@ -232,7 +231,7 @@ function ClassLeaderboard({ startClass }: { startClass: StartClassType }) {
                     variant="outline"
                 >
                     <Download className="h-4 w-4 mr-2" /> 
-                    {isPdfGenerating ? 'Generiere PDF...' : 'PDF Download'}
+                    {isPdfGenerating ? 'Generiere PDF...' : 'PDF Download für'+formatStartClass(startClass)}
                 </Button>
             </CardHeader>
             <CardContent className="px-0 pt-4">
