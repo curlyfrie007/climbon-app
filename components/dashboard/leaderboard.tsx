@@ -9,12 +9,32 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { useParticipants, StartClassType, Result } from "@/hooks/useParticipants"
+import { useParticipantsByStartclass, StartClassType, Result } from "@/hooks/useParticipants"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-export function LeaderboardTable() {
-    const { participants, loading, error } = useParticipants();
+// Define a mapping for our tab values to StartClassType
+const tabToStartClassMap: Record<string, StartClassType> = {
+    "männlich": "Maennlich",
+    "weiblich": "Weiblich",
+    "männlichü40": "Maennlich_Ue40",
+    "weiiblichü40": "Weiblich_Ue40"
+};
+
+// Function to format start class to a more readable format
+const formatStartClass = (startclass: StartClassType) => {
+    switch (startclass) {
+        case "Maennlich": return "Männlich";
+        case "Weiblich": return "Weiblich";
+        case "Maennlich_Ue40": return "Männlich Ü40";
+        case "Weiblich_Ue40": return "Weiblich Ü40";
+        default: return startclass;
+    }
+}
+
+// Component to display leaderboard for a specific start class
+function ClassLeaderboard({ startClass }: { startClass: StartClassType }) {
+    const { participants, loading, error } = useParticipantsByStartclass(startClass);
     const [rankedParticipants, setRankedParticipants] = React.useState<any[]>([]);
 
     React.useEffect(() => {
@@ -54,75 +74,80 @@ export function LeaderboardTable() {
         return totalScore;
     }
 
-    // Function to map start class to a more readable format
-    const formatStartClass = (startclass: StartClassType) => {
-        switch (startclass) {
-            case "Maennlich": return "Männlich";
-            case "Weiblich": return "Weiblich";
-            case "Maennlich_Ue40": return "Männlich Ü40";
-            case "Weiblich_Ue40": return "Weiblich Ü40";
-            default: return startclass;
-        }
-    }
-
     return (
         <>
-            <Tabs defaultValue="männlich" className="w-[400px] pt-5">
-                <TabsList>
-                    <TabsTrigger value="männlich">Männlich</TabsTrigger>
-                    <TabsTrigger value="weiblich">Weiblich</TabsTrigger>
-                    <TabsTrigger value="männlichü40">Männlich Ü40</TabsTrigger>
-                    <TabsTrigger value="weiiblichü40">Weiblich Ü40</TabsTrigger>
-                </TabsList>
-                <TabsContent value="männlich">
-                    <CardHeader>
-                    <CardTitle></CardTitle>
-                    </CardHeader>
-                    <CardContent className="px-0 pt-4">
-                        {loading ? (
-                            <div className="flex justify-center p-4">Lädt...</div>
-                        ) : error ? (
-                            <div className="text-red-500 p-4">Fehler beim Laden der Teilnehmer</div>
-                        ) : (
-                            <div className="rounded-md border">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead className="w-16">Rang</TableHead>
-                                            <TableHead>Name</TableHead>
-                                            <TableHead>Punkte</TableHead>
-                                            <TableHead>Startklasse</TableHead>
+            <CardHeader>
+                <CardTitle>{formatStartClass(startClass)}</CardTitle>
+            </CardHeader>
+            <CardContent className="px-0 pt-4">
+                {loading ? (
+                    <div className="flex justify-center p-4">Lädt...</div>
+                ) : error ? (
+                    <div className="text-red-500 p-4">Fehler beim Laden der Teilnehmer</div>
+                ) : (
+                    <div className="rounded-md border">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="w-16">Rang</TableHead>
+                                    <TableHead>Name</TableHead>
+                                    <TableHead>Punkte</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {rankedParticipants.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={3} className="h-24 text-center">
+                                            Keine Teilnehmer gefunden.
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    rankedParticipants.map((participant) => (
+                                        <TableRow key={participant.id}>
+                                            <TableCell className="font-medium">
+                                                {participant.rank}
+                                            </TableCell>
+                                            <TableCell>{participant.name}</TableCell>
+                                            <TableCell>{participant.totalScore}</TableCell>
                                         </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {rankedParticipants.length === 0 ? (
-                                            <TableRow>
-                                                <TableCell colSpan={4} className="h-24 text-center">
-                                                    Keine Teilnehmer gefunden.
-                                                </TableCell>
-                                            </TableRow>
-                                        ) : (
-                                            rankedParticipants.map((participant) => (
-                                                <TableRow key={participant.id}>
-                                                    <TableCell className="font-medium">
-                                                        {participant.rank}
-                                                    </TableCell>
-                                                    <TableCell>{participant.name}</TableCell>
-                                                    <TableCell>{participant.totalScore}</TableCell>
-                                                    <TableCell>{formatStartClass(participant.startclass)}</TableCell>
-                                                </TableRow>
-                                            ))
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        )}
-                    </CardContent>
-                </TabsContent>
-                <TabsContent value="weiblich">Change your password here.</TabsContent>
-                <TabsContent value="männlichü40">Make changes to your account here.</TabsContent>
-                <TabsContent value="weiblichü40">Change your password here.</TabsContent>
-            </Tabs>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                )}
+            </CardContent>
         </>
+    );
+}
+
+export function LeaderboardTable() {
+    const [activeTab, setActiveTab] = React.useState("männlich");
+
+    return (
+        <Tabs 
+            defaultValue="männlich" 
+            className="pt-5"
+            onValueChange={setActiveTab}
+        >
+            <TabsList>
+                <TabsTrigger value="männlich">Männlich</TabsTrigger>
+                <TabsTrigger value="weiblich">Weiblich</TabsTrigger>
+                <TabsTrigger value="männlichü40">Männlich Ü40</TabsTrigger>
+                <TabsTrigger value="weiiblichü40">Weiblich Ü40</TabsTrigger>
+            </TabsList>
+            <TabsContent value="männlich">
+                <ClassLeaderboard startClass="Maennlich" />
+            </TabsContent>
+            <TabsContent value="weiblich">
+                <ClassLeaderboard startClass="Weiblich" />
+            </TabsContent>
+            <TabsContent value="männlichü40">
+                <ClassLeaderboard startClass="Maennlich_Ue40" />
+            </TabsContent>
+            <TabsContent value="weiiblichü40">
+                <ClassLeaderboard startClass="Weiblich_Ue40" />
+            </TabsContent>
+        </Tabs>
     )
 }
