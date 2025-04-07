@@ -53,7 +53,6 @@ export async function login(state: FormStateLogin, formData: FormData): Promise<
 
         // The createSession function now returns a result instead of redirecting
         const sessionResult = await createSession(user.id);
-        console.log("User logged in:", user);
 
         // Return success message and redirection info
         return {

@@ -37,7 +37,6 @@ export default function ParticipantLogin() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
 
-        console.log(name + secret)
         const success = await login(name, secret)
         if (success) {
             // Redirect to the editor

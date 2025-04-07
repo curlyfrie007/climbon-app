@@ -50,7 +50,6 @@ export async function signup(state: FormState, formData: FormData,): Promise<For
             },
         });
 
-        console.log("User created:", newUser);
 
         return {
             errors: {},

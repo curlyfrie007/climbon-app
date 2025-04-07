@@ -7,7 +7,6 @@ const protectedRoutes = ['']
 const publicRoutes = ['/login', '/signup', '/']
 
 export default async function middleware(req: NextRequest) {
-    console.log("hello");
     // 2. Check if the current route is protected or public
     const path = req.nextUrl.pathname
     const isProtectedRoute = path.startsWith("/dashboard")
@@ -20,7 +19,6 @@ export default async function middleware(req: NextRequest) {
     // 4. Redirect to /login if the user is not authenticated
     if (isProtectedRoute && !session?.userId) {
         return NextResponse.redirect(new URL('/login', req.nextUrl))
-        console.log("redirected from dash")
     }
 
     // 5. Redirect to /dashboard if the user is authenticated

@@ -46,7 +46,6 @@ export async function createSession(userId: string) {
         path: '/',
     });
 
-    console.log("Session created successfully");
 
     // Don't redirect here - let the calling function handle redirection
     return { success: true, redirectTo: '/dashboard' };

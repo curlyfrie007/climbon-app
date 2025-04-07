@@ -31,7 +31,6 @@ export function LoginForm() {
 
         // Check for redirectTo property and redirect if present
         if (state?.redirectTo) {
-            console.log(`Redirecting to: ${state.redirectTo}`);
             router.push(state.redirectTo);
         }
         // Fallback for backward compatibility
