@@ -76,9 +76,7 @@ function ClassLeaderboard({ startClass }: { startClass: StartClassType }) {
 
     return (
         <>
-            <CardHeader>
-                <CardTitle>{formatStartClass(startClass)}</CardTitle>
-            </CardHeader>
+            
             <CardContent className="px-0 pt-4">
                 {loading ? (
                     <div className="flex justify-center p-4">Lädt...</div>

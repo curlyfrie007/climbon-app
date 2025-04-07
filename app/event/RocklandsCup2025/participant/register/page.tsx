@@ -96,7 +96,7 @@ export default function ParticipantRegistration() {
 
     return (
         <div className="container mx-auto py-10">
-            <h1 className="px-6 text-2xl font-bold mx-auto">Rocklands Cup 2025</h1>
+            <h1 className="px-6 text-2xl font-bold mx-auto max-w-md">Rocklands Cup 2025</h1>
             <div className="max-w-md mx-auto">
                 {!isSubmitted ? (
                     <Card className="shadow-none border-0">

@@ -47,7 +47,7 @@ export default function ParticipantLogin() {
 
     return (
         <div className="container mx-auto py-10">
-            <h1 className="px-6 text-2xl font-bold">Rocklands Cup 2025</h1>
+            <h1 className="px-6 text-2xl font-bold mx-auto max-w-md">Rocklands Cup 2025</h1>
             <div className="max-w-md mx-auto">
                 <Card className="shadow-none border-0">
                     <CardHeader>
