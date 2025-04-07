@@ -46,7 +46,6 @@ export function SignupForm() {
         <Card>
             <CardHeader>
                 <CardTitle className="text-2xl">SignUp</CardTitle>
-                <CardDescription>Erstelle einen Account.</CardDescription>
             </CardHeader>
             <CardContent>
                 <form action={action}>
@@ -57,7 +56,7 @@ export function SignupForm() {
                                 id="firstname"
                                 name="firstname"
                                 type="text"
-                                placeholder="John"
+                                placeholder=""
                                 required
                                 value={values.firstname}
                                 onChange={handleChange}
@@ -71,7 +70,7 @@ export function SignupForm() {
                                 id="lastname"
                                 name="lastname"
                                 type="text"
-                                placeholder="Doe"
+                                placeholder=""
                                 required
                                 value={values.lastname}
                                 onChange={handleChange}
@@ -107,7 +106,7 @@ export function SignupForm() {
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="key">Access Key</Label>
+                            <Label htmlFor="key">OTP</Label>
                             <Input
                                 id="key"
                                 name="key"
@@ -125,7 +124,7 @@ export function SignupForm() {
 
                         <div className="mt-4 text-center">
                             <p>
-                                Already have an account?{" "}
+                                Du hast schon einen Account?{" "}
                                 <a href="/login" className="text-blue-500 hover:underline">
                                     Log In
                                 </a>

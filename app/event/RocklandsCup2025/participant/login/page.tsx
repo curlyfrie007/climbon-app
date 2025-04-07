@@ -53,7 +53,7 @@ export default function ParticipantLogin() {
                     <CardHeader>
                         <CardTitle>Teilnehmer Anmeldung</CardTitle>
                         <CardDescription>
-                            Bitte geben Sie Ihren Namen und Geheimcode ein, um Ihre Ergebnisse zu bearbeiten.
+                            Bitte geben Sie Ihren Namen und Zugangsschlüssel ein, um Ihre Ergebnisse zu bearbeiten.
                         </CardDescription>
                     </CardHeader>
                     <form onSubmit={handleSubmit}>

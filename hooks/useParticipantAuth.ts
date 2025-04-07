@@ -90,7 +90,7 @@ export function useParticipantAuth() {
             const errorMessage = err.message || "Anmeldung fehlgeschlagen";
             setError(errorMessage);
             toast.error("Anmeldung fehlgeschlagen", {
-                description: "Name oder Geheimcode ist ungültig."
+                description: "Name oder Zugangsschlüssel ist ungültig."
             });
             console.error("Login error:", err);
             return false;

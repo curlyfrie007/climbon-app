@@ -30,7 +30,7 @@ import { LeaderboardTable } from "@/components/dashboard/leaderboard";
 
 const eventInfo = {
     "title": "Rocklands Cup 2025",
-    "type": "Wettkampf - Lead Climbing",
+    "type": "Seilkletterwettkampf - Lead Climbing",
     "description": "🚀Endlich wieder Rocklandscup!🚀\nAm 12.04.2025 ist es soweit -- der beste, schönste, wildeste, legendärste Seilkletterwettkampf aller Zeiten steht an!🎉\nMotto? 'All you need is lead.' (Denn 'All you need is Magnesium und gute Ausreden' passte leider nicht auf die Plakate.) \nIhr wollt Action? Ihr bekommt sie! \nHier unsere 4 Kategorien:\n- Männlich\n- Weiblich\n- Ü40 männlich\n- Ü40 weiblich\n🧗‍♀️Die Quali -- ab 13:00 wird geliefert:\nVon 13:00 bis 18:00 Uhr könnt ihr euch an 8 epischen Wettkampfrouten so richtig austoben.\nJede Route hat 5 Zonengriffe -- klingt nach Spaß, oder?\nDie Summe eurer besten Ergebnisse minus die Anzahl der Versuche bis an die Zone/Top-Griffe pro Route ergibt am Ende eure Quali-Punktzahl.\nDas Ziel der Quali?\nEin Gesamtergebnis, das dir den goldenen Platz unter den besten 5 deiner Kategorie sichert.\nUnd wenn das klappt?\n🧗Zack, Finale, Baby!\n 19 Uhr, knallt's richtig!\nDie besten 5 aus jeder Kategorie kämpfen im Finale um Ruhm, Ehre und -- wie könnte es anders sein -- ein paar coole Preise unserer großartigen Sponsoren.\nWeil ein episches Finale auch"
 }
 
@@ -93,7 +93,7 @@ export default function Page() {
                                 <h1>Infos</h1>
                             </div>
                         </div> */}
-                        <h1 className="text-4xl text-bold">Teilnehmer</h1>
+                        <h1 className="text-4xl text-bold">Teilnehmer/Ergebnisse</h1>
                         <LeaderboardTable></LeaderboardTable>
                     </div>
                 </div>

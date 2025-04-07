@@ -49,7 +49,6 @@ export function LoginForm() {
         <Card>
             <CardHeader>
                 <CardTitle className="text-2xl">Login</CardTitle>
-                <CardDescription>Log into your account.</CardDescription>
             </CardHeader>
             <CardContent>
                 <form action={action}>
@@ -95,7 +94,7 @@ export function LoginForm() {
 
                         <div className="mt-4 text-center">
                             <p>
-                                Don't have an account?{" "}
+                                Noch keinen Account?{" "}
                                 <a href="/signup" className="text-blue-500 hover:underline">
                                     Sign Up
                                 </a>
