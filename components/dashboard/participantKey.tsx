@@ -39,9 +39,9 @@ const ParticipantKeyAlertDialog = () => {
         <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
             <AlertDialogContent className="max-w-md">
                 <AlertDialogHeader>
-                    <AlertDialogTitle>Participant Key</AlertDialogTitle>
+                    <AlertDialogTitle>Zugangsschlüssel</AlertDialogTitle>
                     <AlertDialogDescription>
-                        Below is your secret participant key. Please store it securely.
+                        Dies ist der Zugangsschlüssel des Teilnehmers. Bewahre ihn sicher auf.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
 
@@ -61,7 +61,7 @@ const ParticipantKeyAlertDialog = () => {
                 </div>
 
                 <AlertDialogFooter>
-                    <AlertDialogAction>Close</AlertDialogAction>
+                    <AlertDialogAction>Schließen</AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>

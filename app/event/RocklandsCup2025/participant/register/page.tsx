@@ -24,6 +24,7 @@ import { toast } from "sonner"
 import { useCreateParticipant, StartClassType } from "@/hooks/useParticipants"
 import Cookies from "js-cookie"
 import Link from "next/link"
+import { ClipboardIcon, CheckIcon } from "lucide-react"
 
 // Function to generate a random string for participant secret
 const generateSecret = () => {
@@ -35,6 +36,12 @@ const generateSecret = () => {
     return result
 }
 
+// Copy to clipboard function
+const copyToClipboard = (value: string) => {
+    navigator.clipboard.writeText(value)
+    return true
+}
+
 export default function ParticipantRegistration() {
     const router = useRouter()
     const [firstName, setFirstName] = React.useState("")
@@ -43,8 +50,25 @@ export default function ParticipantRegistration() {
     const [isSubmitted, setIsSubmitted] = React.useState(false)
     const [secret, setSecret] = React.useState("")
     const [participantId, setParticipantId] = React.useState("")
+    const [hasCopied, setHasCopied] = React.useState(false)
 
     const { createParticipant, loading, error } = useCreateParticipant()
+
+    React.useEffect(() => {
+        if (hasCopied) {
+            setTimeout(() => {
+                setHasCopied(false)
+            }, 2000)
+        }
+    }, [hasCopied])
+
+    const handleCopyClick = () => {
+        copyToClipboard(secret)
+        setHasCopied(true)
+        toast("Kopiert", {
+            description: "Zugangsschlüssel wurde in die Zwischenablage kopiert."
+        })
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -166,9 +190,24 @@ export default function ParticipantRegistration() {
                         <CardContent className="space-y-4">
                             <div className="p-4 border rounded-md bg-green-50">
                                 <p className="font-bold mb-2">Ihr Zugangsschlüssel:</p>
-                                <p className="text-xl font-mono bg-white p-2 border rounded text-center">
-                                    {secret}
-                                </p>
+                                <div className="flex items-center justify-between bg-white p-2 border rounded">
+                                    <p className="text-xl font-mono">
+                                        {secret}
+                                    </p>
+                                    <Button 
+                                        size="icon" 
+                                        variant="ghost" 
+                                        className="h-8 w-8 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                                        onClick={handleCopyClick}
+                                    >
+                                        {hasCopied ? (
+                                            <CheckIcon className="h-4 w-4" />
+                                        ) : (
+                                            <ClipboardIcon className="h-4 w-4" />
+                                        )}
+                                        <span className="sr-only">Kopieren</span>
+                                    </Button>
+                                </div>
                             </div>
                             <div className="text-sm text-gray-600">
                                 <p className="mb-2"><strong>WICHTIG:</strong> Dieser Schlüssel wird benötigt, um Ihre Ergebnisse einzutragen oder zu ändern.</p>

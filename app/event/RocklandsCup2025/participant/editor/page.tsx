@@ -148,7 +148,7 @@ export default function ParticipantEditor() {
                     <div>
                         <CardTitle className="text-3xl">Hallo, {participant.name}!</CardTitle>
                         <CardDescription>
-                            Hier kannst du deine Ergebnisse eintragen, einsehen und aktualisieren.
+                            Hier kannst du deine Ergebnisse eintragen und einsehen.
                         </CardDescription>
                     </div>
                 </CardHeader>
@@ -222,12 +222,14 @@ function RouteCard({
     const [zone, setZone] = React.useState(routeData.zone)
     const [attempts, setAttempts] = React.useState(routeData.attempts)
     const [hasChanges, setHasChanges] = React.useState(false)
+    const [isSaving, setIsSaving] = React.useState(false)
 
     // Update local state when props change
     React.useEffect(() => {
         setZone(routeData.zone)
         setAttempts(routeData.attempts)
         setHasChanges(false)
+        setIsSaving(false)
     }, [routeData])
 
     // Check for changes
@@ -238,7 +240,13 @@ function RouteCard({
 
     // Handle zone change
     const handleZoneChange = (value: string) => {
-        setZone(parseInt(value))
+        const newZone = parseInt(value)
+        setZone(newZone)
+        
+        // Automatically set attempts to at least 1 if a zone (10-50) is selected and attempts is 0
+        if (newZone >= 10 && attempts === 0) {
+            setAttempts(1)
+        }
     }
 
     // Handle attempts change
@@ -248,7 +256,11 @@ function RouteCard({
 
     // Handle save
     const handleSave = () => {
+        setIsSaving(true)
         onUpdate(routeNumber, zone, attempts)
+        
+        // The isSaving state will be reset when routeData props change
+        // which happens after a successful update due to refetchParticipant()
     }
 
     return (
@@ -320,7 +332,7 @@ function RouteCard({
                     disabled={!hasChanges || isUpdating}
                     onClick={handleSave}
                 >
-                    {isUpdating ? "Speichern..." : "Speichern"}
+                    {isSaving ? "Speichern..." : "Speichern"}
                 </Button>
             </div>
         </Card>

@@ -214,7 +214,7 @@ export function ParticipantsTable() {
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Routes Completed
+                    Abgeschlossene Routen
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
@@ -250,7 +250,7 @@ export function ParticipantsTable() {
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Rank
+                    Rang
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
@@ -322,7 +322,7 @@ export function ParticipantsTable() {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
+                                <span className="sr-only">Optionen</span>
                                 <MoreHorizontal className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
@@ -330,7 +330,7 @@ export function ParticipantsTable() {
                             <DropdownMenuItem className="hover:cursor-pointer"
                                 onClick={() => showParticipantKey(participant.secret)}
                             >
-                                Show Key
+                                Zugangsschlüssel
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 className="hover:cursor-pointer"
@@ -349,7 +349,7 @@ export function ParticipantsTable() {
                                     setConfirmDeleteDialogOpen(true)
                                 }}
                             >
-                                <Trash2 className="mr-2 h-4 w-4" />Delete
+                                <Trash2 className="mr-2 h-4 w-4" />Löschen
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -624,7 +624,7 @@ export function ParticipantsTable() {
                                 </div>
                                 <div className="grid grid-cols-4 items-center gap-4">
                                     <Label htmlFor="secret" className="text-right">
-                                        Secret Key
+                                        Zugangsschlüssel
                                     </Label>
                                     <Input
                                         id="secret"
@@ -699,7 +699,7 @@ export function ParticipantsTable() {
                                     colSpan={columns.length}
                                     className="h-24 text-center"
                                 >
-                                    No results.
+                                    Keine Einträge.
                                 </TableCell>
                             </TableRow>
                         )}
@@ -711,11 +711,11 @@ export function ParticipantsTable() {
             <div className="flex items-center justify-end space-x-2 py-4">
                 <div className="flex-1 text-sm text-muted-foreground">
                     {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                    {table.getFilteredRowModel().rows.length} row(s) selected.
+                    {table.getFilteredRowModel().rows.length} Einträge(n) ausgewählt.
                 </div>
                 <div className="hidden items-center gap-2 lg:flex">
                     <Label htmlFor="rows-per-page" className="text-sm font-medium">
-                        Rows per page
+                        Einträge pro Seite
                     </Label>
                     <Select
                         value={`${table.getState().pagination.pageSize}`}
@@ -738,7 +738,7 @@ export function ParticipantsTable() {
                     </Select>
                 </div>
                 <div className="flex w-fit items-center justify-center text-sm font-medium">
-                    Page {table.getState().pagination.pageIndex + 1} of{" "}
+                    Seite {table.getState().pagination.pageIndex + 1} von{" "}
                     {table.getPageCount()}
                 </div>
                 <div className="ml-auto flex items-center gap-2 lg:ml-0">

@@ -209,7 +209,7 @@ export function ResultsTable() {
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto">
-                            Columns <ChevronDown />
+                            Spalten <ChevronDown />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
@@ -276,7 +276,7 @@ export function ResultsTable() {
                                     colSpan={columns.length}
                                     className="h-24 text-center"
                                 >
-                                    No results.
+                                    Keine Einträge.
                                 </TableCell>
                             </TableRow>
                         )}
@@ -295,7 +295,7 @@ export function ResultsTable() {
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}
                     >
-                        Previous
+                        Vorherige
                     </Button>
                     <Button
                         variant="outline"
@@ -303,7 +303,7 @@ export function ResultsTable() {
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}
                     >
-                        Next
+                        Nächste
                     </Button>
                 </div>
             </div>
