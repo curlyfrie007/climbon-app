@@ -6,50 +6,30 @@ import {
     Card,
     CardContent,
     CardDescription,
+    CardFooter,
     CardHeader,
     CardTitle
 } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
-import { 
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue 
-} from "@/components/ui/select"
+import { Progress } from "@/components/ui/progress"
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow
-} from "@/components/ui/table"
-
-// Import recharts components for shadcn charts
-import {
-    Bar,
     BarChart,
-    CartesianGrid,
-    Label,
-    Pie,
+    Bar,
     PieChart,
+    Pie,
+    Cell,
+    ResponsiveContainer,
     XAxis,
-    YAxis
+    YAxis,
+    Tooltip,
+    Legend,
+    LineChart,
+    Line
 } from "recharts"
-
-// Import shadcn chart components
-import {
-    ChartConfig,
-    ChartContainer,
-    ChartTooltip,
-    ChartTooltipContent
-} from "@/components/ui/chart"
 
 export function CompetitionStatistics() {
     const { participants, participantsLoading, participantsError } = useParticipantManager()
-    const [selectedClass, setSelectedClass] = React.useState<StartClassType | "all">("all")
 
     // Derived statistics
     const [stats, setStats] = React.useState({
@@ -57,7 +37,7 @@ export function CompetitionStatistics() {
         participantsByClass: {} as Record<StartClassType, number>,
         routeCompletionStats: {} as Record<string, number>,
         routeCompletionByClass: {} as Record<string, Record<StartClassType, number>>,
-        averageZonesByRoute: {} as Record<string, number>,
+        averageScoresByRoute: {} as Record<string, number>,
         topPerformers: [] as { name: string, score: number, startclass: StartClassType }[],
         participantsWithAllRoutes: 0,
         averageAttemptsPerRoute: {} as Record<string, number>,
@@ -77,54 +57,23 @@ export function CompetitionStatistics() {
 
     // Class colors for charts
     const classColors = {
-        "Maennlich": "hsl(var(--chart-1))",
-        "Weiblich": "hsl(var(--chart-2))",
-        "Maennlich_Ue40": "hsl(var(--chart-3))",
-        "Weiblich_Ue40": "hsl(var(--chart-4))",
+        "Maennlich": "#2563eb", // blue
+        "Weiblich": "#db2777", // pink
+        "Maennlich_Ue40": "#1e40af", // indigo
+        "Weiblich_Ue40": "#9d174d", // fuchsia
     }
 
-    // Define chart config for donut chart
-    const participantsChartConfig = {
-        Maennlich: {
-            label: "Männlich",
-            color: classColors.Maennlich,
-        },
-        Weiblich: {
-            label: "Weiblich",
-            color: classColors.Weiblich,
-        },
-        Maennlich_Ue40: {
-            label: "Männlich Ü40",
-            color: classColors.Maennlich_Ue40,
-        },
-        Weiblich_Ue40: {
-            label: "Weiblich Ü40",
-            color: classColors.Weiblich_Ue40,
-        },
-    } satisfies ChartConfig
-
-    // Define chart config for route charts
-    const routeChartConfig = {
-        value: {
-            label: "Teilnehmer",
-            color: "hsl(var(--chart-1))",
-        },
-    } satisfies ChartConfig
-
-    // Define chart config for average charts
-    const zoneChartConfig = {
-        value: {
-            label: "Durchschnittliche Zone",
-            color: "hsl(var(--chart-3))",
-        },
-    } satisfies ChartConfig
-
-    const attemptChartConfig = {
-        value: {
-            label: "Durchschnittliche Versuche",
-            color: "hsl(var(--chart-2))",
-        },
-    } satisfies ChartConfig
+    // Route colors for charts
+    const routeColors = [
+        "#ef4444", // red
+        "#f97316", // orange
+        "#f59e0b", // amber
+        "#84cc16", // lime
+        "#10b981", // emerald
+        "#06b6d4", // cyan
+        "#3b82f6", // blue
+        "#8b5cf6", // violet
+    ]
 
     // Calculate statistics when participants data changes
     React.useEffect(() => {
@@ -139,7 +88,7 @@ export function CompetitionStatistics() {
 
         const routeCompletionStats: Record<string, number> = {};
         const routeCompletionByClass: Record<string, Record<StartClassType, number>> = {};
-        const averageZonesByRoute: Record<string, number> = {};
+        const averageScoresByRoute: Record<string, number> = {};
         const averageAttemptsPerRoute: Record<string, number> = {};
         const zoneDistribution: Record<number, number> = {};
 
@@ -155,7 +104,7 @@ export function CompetitionStatistics() {
                 "Maennlich_Ue40": 0,
                 "Weiblich_Ue40": 0
             };
-            averageZonesByRoute[routeKey] = 0;
+            averageScoresByRoute[routeKey] = 0;
             averageAttemptsPerRoute[routeKey] = 0;
         }
 
@@ -179,7 +128,7 @@ export function CompetitionStatistics() {
                     completedRoutes++;
 
                     // Accumulate route scores and attempts for averages
-                    averageZonesByRoute[routeKey] += zone;
+                    averageScoresByRoute[routeKey] += Math.max(0, zone - attempts);
                     averageAttemptsPerRoute[routeKey] += attempts;
 
                     // Track zone distribution
@@ -197,7 +146,7 @@ export function CompetitionStatistics() {
             const routeKey = `Route${i}`;
             const completions = routeCompletionStats[routeKey];
             if (completions > 0) {
-                averageZonesByRoute[routeKey] = averageZonesByRoute[routeKey] / completions;
+                averageScoresByRoute[routeKey] = averageScoresByRoute[routeKey] / completions;
                 averageAttemptsPerRoute[routeKey] = averageAttemptsPerRoute[routeKey] / completions;
             }
         }
@@ -221,7 +170,7 @@ export function CompetitionStatistics() {
             participantsByClass,
             routeCompletionStats,
             routeCompletionByClass,
-            averageZonesByRoute,
+            averageScoresByRoute,
             topPerformers,
             participantsWithAllRoutes,
             averageAttemptsPerRoute,
@@ -233,35 +182,44 @@ export function CompetitionStatistics() {
     // Prepare chart data
     const prepareParticipantsByClassData = () => {
         return Object.entries(stats.participantsByClass).map(([startclass, count]) => ({
-            browser: startclass,
-            visitors: count,
-            fill: `var(--color-${startclass})`,
+            name: formatStartClass(startclass as StartClassType),
+            value: count,
+            color: classColors[startclass as keyof typeof classColors],
         }));
     };
 
-    const prepareRouteCompletionData = (startClass: StartClassType | "all") => {
-        return Object.entries(stats.routeCompletionByClass).map(([route, classCounts]) => {
-            const routeNumber = route.replace('Route', '');
-            return {
-                month: `R${routeNumber}`,
-                desktop: startClass === "all" 
-                    ? stats.routeCompletionStats[route]
-                    : classCounts[startClass],
-            };
-        });
-    };
-
-    const prepareAverageZonesByRouteData = () => {
-        return Object.entries(stats.averageZonesByRoute).map(([route, zone]) => ({
-            month: route.replace('Route', 'R'),
-            desktop: parseFloat(zone.toFixed(2))
+    const prepareRouteCompletionData = () => {
+        return Object.entries(stats.routeCompletionStats).map(([route, count]) => ({
+            name: route.replace('Route', 'R'),
+            value: count,
+            total: stats.totalParticipants,
+            percentage: (count / stats.totalParticipants) * 100,
         }));
     };
 
-    const prepareAverageAttemptsByRouteData = () => {
-        return Object.entries(stats.averageAttemptsPerRoute).map(([route, attempts]) => ({
-            month: route.replace('Route', 'R'),
-            desktop: parseFloat(attempts.toFixed(2))
+    const prepareRouteCompletionByClassData = () => {
+        const categories = Object.keys(stats.routeCompletionByClass).map(route =>
+            route.replace('Route', 'R')
+        );
+
+        const series = Object.keys(stats.participantsByClass).map(startclass => ({
+            name: formatStartClass(startclass as StartClassType),
+            data: categories.map((_, index) => {
+                const routeKey = `Route${index + 1}`;
+                return stats.routeCompletionByClass[routeKey][startclass as StartClassType];
+            }),
+            color: classColors[startclass as keyof typeof classColors]
+        }));
+
+        return { categories, series };
+    };
+
+    const prepareAverageScoresByRouteData = () => {
+        return Object.entries(stats.averageScoresByRoute).map(([route, score], index) => ({
+            name: route.replace('Route', 'R'),
+            score: parseFloat(score.toFixed(2)),
+            attempts: parseFloat(stats.averageAttemptsPerRoute[route].toFixed(2)),
+            fill: routeColors[index]
         }));
     };
 
@@ -289,195 +247,245 @@ export function CompetitionStatistics() {
         <div className="w-full">
             <h1 className="text-4xl font-bold mb-6">Statistik</h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                {/* Participants Donut Chart */}
-                <Card className="flex flex-col">
-                    <CardHeader className="items-center pb-0">
-                        <CardTitle className="text-2xl">Teilnehmer</CardTitle>
-                        <CardDescription>Aufschlüsselung nach Startklasse</CardDescription>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                {/* Total Participants Card */}
+                <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-2xl">Teilnehmer Gesamt</CardTitle>
                     </CardHeader>
-                    <CardContent className="flex-1 pb-0">
-                        <ChartContainer
-                            config={participantsChartConfig}
-                            className="mx-auto aspect-square max-h-[250px]"
-                        >
-                            <PieChart>
-                                <ChartTooltip
-                                    cursor={false}
-                                    content={<ChartTooltipContent hideLabel />}
-                                />
-                                <Pie
-                                    data={prepareParticipantsByClassData()}
-                                    dataKey="visitors"
-                                    nameKey="browser"
-                                    innerRadius={60}
-                                    strokeWidth={5}
-                                >
-                                    <Label
-                                        content={({ viewBox }) => {
-                                            if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                                                return (
-                                                    <text
-                                                        x={viewBox.cx}
-                                                        y={viewBox.cy}
-                                                        textAnchor="middle"
-                                                        dominantBaseline="middle"
-                                                    >
-                                                        <tspan
-                                                            x={viewBox.cx}
-                                                            y={viewBox.cy}
-                                                            className="fill-foreground text-3xl font-bold"
-                                                        >
-                                                            {stats.totalParticipants}
-                                                        </tspan>
-                                                        <tspan
-                                                            x={viewBox.cx}
-                                                            y={(viewBox.cy || 0) + 24}
-                                                            className="fill-muted-foreground"
-                                                        >
-                                                            Teilnehmer Gesamt
-                                                        </tspan>
-                                                    </text>
-                                                )
-                                            }
-                                            return null;
-                                        }}
-                                    />
-                                </Pie>
-                            </PieChart>
-                        </ChartContainer>
-                    </CardContent>
-                    <CardContent className="text-center text-muted-foreground mt-2">
-                        {stats.participantsWithAllRoutes} haben alle Routen abgeschlossen
+                    <CardContent className="gap-0">
+                        <div className="text-4xl font-bold">{stats.totalParticipants}</div>
+                        <p className="text-muted-foreground">
+                            {stats.participantsWithAllRoutes} haben alle Routen abgeschlossen
+                        </p>
                     </CardContent>
                 </Card>
 
-                {/* Top Performers Table */}
+                {/* Participants by Class Card */}
+                <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-2xl">Teilnehmer pro Klasse</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex flex-wrap gap-2">
+                            {Object.entries(stats.participantsByClass).map(([startclass, count]) => (
+                                <Badge
+                                    key={startclass}
+                                    variant="outline"
+                                    className="text-base py-1 px-2"
+                                    style={{ borderColor: classColors[startclass as keyof typeof classColors] }}
+                                >
+                                    {formatStartClass(startclass as StartClassType)}: {count}
+                                </Badge>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Top Performers Card */}
                 <Card>
                     <CardHeader className="pb-2">
                         <CardTitle className="text-2xl">Top Performer</CardTitle>
-                        <CardDescription>Bestenliste nach Punkten</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Platz</TableHead>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Klasse</TableHead>
-                                    <TableHead className="text-right">Punkte</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {stats.topPerformers.map((performer, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell className="font-medium">{index + 1}</TableCell>
-                                        <TableCell>{performer.name}</TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                variant="outline"
-                                                style={{ borderColor: classColors[performer.startclass] }}
-                                            >
-                                                {formatStartClass(performer.startclass)}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="text-right font-bold">{performer.score}</TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                        <div className="space-y-2">
+                            {stats.topPerformers.slice(0, 3).map((performer, index) => (
+                                <div key={index} className="flex justify-between items-center">
+                                    <div>
+                                        <span className="font-semibold text-base">{performer.name}</span>
+                                        <Badge
+                                            variant="outline"
+                                            className="ml-2"
+                                            style={{ borderColor: classColors[performer.startclass] }}
+                                        >
+                                            {formatStartClass(performer.startclass)}
+                                        </Badge>
+                                    </div>
+                                    <span className="font-bold">{performer.score} Punkte</span>
+                                </div>
+                            ))}
+                        </div>
                     </CardContent>
                 </Card>
             </div>
 
             <Tabs defaultValue="route-completion" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="route-completion">Routen Fortschritt</TabsTrigger>
+                    <TabsTrigger value="class-analysis">Klassen Analyse</TabsTrigger>
                     <TabsTrigger value="performance-metrics">Performance Metriken</TabsTrigger>
                 </TabsList>
 
                 {/* Route Completion Tab */}
                 <TabsContent value="route-completion" className="space-y-4">
-                    <Card>
-                        <CardHeader>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <CardTitle>Routen Abschlussrate</CardTitle>
-                                    <CardDescription>Anzahl der Teilnehmer, die jede Route abgeschlossen haben</CardDescription>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Route Completion Progress Bars */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Routen Abschlussrate</CardTitle>
+                                <CardDescription>Prozentsatz der Teilnehmer, die jede Route abgeschlossen haben</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    {Object.entries(stats.routeCompletionStats).map(([route, count], index) => {
+                                        const percentage = Math.round((count / stats.totalParticipants) * 100);
+                                        return (
+                                            <div key={route} className="space-y-1">
+                                                <div className="flex justify-between">
+                                                    <span className="text-sm font-medium">{route}</span>
+                                                    <span className="text-sm text-muted-foreground">
+                                                        {count}/{stats.totalParticipants} ({percentage}%)
+                                                    </span>
+                                                </div>
+                                                <Progress value={percentage} className="h-2" style={{
+                                                    "--progress-foreground": routeColors[index]
+                                                } as React.CSSProperties} />
+                                            </div>
+                                        );
+                                    })}
                                 </div>
-                                <Select
-                                    value={selectedClass}
-                                    onValueChange={(value) => setSelectedClass(value as StartClassType | "all")}
-                                >
-                                    <SelectTrigger className="w-44">
-                                        <SelectValue placeholder="Alle Klassen" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">Alle Klassen</SelectItem>
-                                        {Object.keys(stats.participantsByClass).map((startclass) => (
-                                            <SelectItem key={startclass} value={startclass}>
-                                                {formatStartClass(startclass as StartClassType)}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </CardHeader>
-                        <CardContent>
-                            <ChartContainer config={routeChartConfig}>
-                                <BarChart
-                                    accessibilityLayer
-                                    data={prepareRouteCompletionData(selectedClass as StartClassType | "all")}
-                                    layout="vertical"
-                                    margin={{
-                                        left: -20,
-                                    }}
-                                >
-                                    <XAxis type="number" dataKey="desktop" hide />
-                                    <YAxis
-                                        dataKey="month"
-                                        type="category"
-                                        tickLine={false}
-                                        tickMargin={10}
-                                        axisLine={false}
-                                    />
-                                    <ChartTooltip
-                                        cursor={false}
-                                        content={<ChartTooltipContent hideLabel />}
-                                    />
-                                    <Bar dataKey="desktop" fill="var(--color-desktop)" radius={5} />
-                                </BarChart>
-                            </ChartContainer>
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
+
+                        {/* Route Completion Chart */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Routen Abschlussraten</CardTitle>
+                                <CardDescription>Visueller Vergleich der Abschlussraten</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="h-[300px]">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={prepareRouteCompletionData()}>
+                                            <XAxis dataKey="name" />
+                                            <YAxis />
+                                            <Tooltip
+                                                formatter={(value: number, name: string, props: any) => [
+                                                    `${value} Teilnehmer (${props.payload.percentage.toFixed(1)}%)`,
+                                                    'Abschlüsse'
+                                                ]}
+                                            />
+                                            <Bar dataKey="value" fill="#8884d8">
+                                                {prepareRouteCompletionData().map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={routeColors[index]} />
+                                                ))}
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                </TabsContent>
+
+                {/* Class Analysis Tab */}
+                <TabsContent value="class-analysis" className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Distribution by Class Pie Chart */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Teilnehmer nach Startklasse</CardTitle>
+                                <CardDescription>Verteilung der Teilnehmer nach Startklasse</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="h-[300px]">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={prepareParticipantsByClassData()}
+                                                cx="50%"
+                                                cy="50%"
+                                                outerRadius={80}
+                                                dataKey="value"
+                                                label={({ name, value }) => `${name}: ${value}`}
+                                            >
+                                                {prepareParticipantsByClassData().map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip formatter={(value) => [`${value} Teilnehmer`, '']} />
+                                            <Legend />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        {/* Route Completion by Class */}
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Routen Abschluss nach Klasse</CardTitle>
+                                <CardDescription>Vergleich der Abschlussraten nach Startklasse</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="h-[300px]">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart
+                                            data={prepareRouteCompletionData()}
+                                            layout="vertical"
+                                            margin={{ top: 10, right: 30, left: 20, bottom: 5 }}
+                                        >
+                                            <XAxis type="number" />
+                                            <YAxis dataKey="name" type="category" />
+                                            <Tooltip />
+                                            <Legend />
+                                            {Object.keys(stats.participantsByClass).map((startclass, index) => {
+                                                const routeData = Array(8).fill(0).map((_, i) => {
+                                                    const routeKey = `Route${i + 1}`;
+                                                    return {
+                                                        name: routeKey.replace('Route', 'R'),
+                                                        [startclass]: stats.routeCompletionByClass[routeKey][startclass as StartClassType]
+                                                    };
+                                                });
+
+                                                return (
+                                                    <Bar
+                                                        key={startclass}
+                                                        dataKey={startclass}
+                                                        stackId="a"
+                                                        fill={classColors[startclass as keyof typeof classColors]}
+                                                        name={formatStartClass(startclass as StartClassType)}
+                                                    />
+                                                );
+                                            })}
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
                 </TabsContent>
 
                 {/* Performance Metrics Tab */}
                 <TabsContent value="performance-metrics" className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Average Zones Chart */}
+                        {/* Average Scores Chart */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Durchschnittlich erreichte Zone pro Route</CardTitle>
-                                <CardDescription>Vergleich der durchschnittlich erreichten Zonenhöhe</CardDescription>
+                                <CardTitle>Durchschnittliche Punktzahlen pro Route</CardTitle>
+                                <CardDescription>Vergleich der durchschnittlichen Punktzahl (Zone - Versuche)</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <ChartContainer config={zoneChartConfig}>
-                                    <BarChart accessibilityLayer data={prepareAverageZonesByRouteData()}>
-                                        <CartesianGrid vertical={false} />
-                                        <XAxis
-                                            dataKey="month"
-                                            tickLine={false}
-                                            tickMargin={10}
-                                            axisLine={false}
-                                        />
-                                        <ChartTooltip
-                                            cursor={false}
-                                            content={<ChartTooltipContent hideLabel />}
-                                        />
-                                        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-                                    </BarChart>
-                                </ChartContainer>
+                                <div className="h-[300px]">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={prepareAverageScoresByRouteData()}>
+                                            <XAxis dataKey="name" />
+                                            <YAxis />
+                                            <Tooltip
+                                                formatter={(value: number) => [`${value.toFixed(1)}`, 'Ø Punktzahl']}
+                                            />
+                                            <Legend />
+                                            <Bar
+                                                dataKey="score"
+                                                name="Ø Punktzahl"
+                                            >
+                                                {prepareAverageScoresByRouteData().map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.fill} />
+                                                ))}
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
                             </CardContent>
                         </Card>
 
@@ -488,22 +496,26 @@ export function CompetitionStatistics() {
                                 <CardDescription>Vergleich der durchschnittlichen Anzahl an Versuchen</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <ChartContainer config={attemptChartConfig}>
-                                    <BarChart accessibilityLayer data={prepareAverageAttemptsByRouteData()}>
-                                        <CartesianGrid vertical={false} />
-                                        <XAxis
-                                            dataKey="month"
-                                            tickLine={false}
-                                            tickMargin={10}
-                                            axisLine={false}
-                                        />
-                                        <ChartTooltip
-                                            cursor={false}
-                                            content={<ChartTooltipContent hideLabel />}
-                                        />
-                                        <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-                                    </BarChart>
-                                </ChartContainer>
+                                <div className="h-[300px]">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <LineChart data={prepareAverageScoresByRouteData()}>
+                                            <XAxis dataKey="name" />
+                                            <YAxis />
+                                            <Tooltip
+                                                formatter={(value: number) => [`${value.toFixed(1)}`, 'Ø Versuche']}
+                                            />
+                                            <Legend />
+                                            <Line
+                                                type="monotone"
+                                                dataKey="attempts"
+                                                stroke="#ff7300"
+                                                name="Ø Versuche"
+                                                strokeWidth={2}
+                                                dot={{ r: 4 }}
+                                            />
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>
