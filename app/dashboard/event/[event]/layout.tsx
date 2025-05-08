@@ -18,7 +18,7 @@ export default function RootLayout({
 }>) {
     return (
         <div className="max-h-screen">
-            <h1 className="p-8 px-6 md:px-10 text-5xl font-bold pb-0">Rocklands Cup 2025</h1>
+            <h1 className="p-8 px-6 md:px-10 text-5xl font-bold pb-0">KKFN 2025</h1>
             <div className="">
                 <ParticipantKeyAlertDialog />
                 {children}

@@ -1,17 +1,17 @@
+// app/login/actions.ts
 'use server'
 
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { LoginFormSchema, FormStateLogin } from '@/app/_lib/definitions'; // Import login schema
+import { LoginFormSchema, FormStateLogin } from '@/app/_lib/definitions';
 import { createSession } from '@/app/_lib/sessions';
-import { redirect } from 'next/navigation';
-import type { NextRequest } from 'next/server';
-import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-
+// Remove unused imports if any after changes
+// import { redirect } from 'next/navigation';
+// import type { NextRequest } from 'next/server';
+// import { NextResponse } from 'next/server';
+// import { cookies } from 'next/headers'; // Not needed here anymore
 
 const prisma = new PrismaClient();
-
 
 export async function login(state: FormStateLogin, formData: FormData): Promise<FormStateLogin> {
     const formValues = {
@@ -19,7 +19,6 @@ export async function login(state: FormStateLogin, formData: FormData): Promise<
         password: formData.get("password")?.toString() || "",
     };
 
-    // Validate the form fields
     const validatedFields = LoginFormSchema.safeParse(formValues);
 
     if (!validatedFields.success) {
@@ -32,49 +31,52 @@ export async function login(state: FormStateLogin, formData: FormData): Promise<
     const { email, password } = validatedFields.data;
 
     try {
-        // Check if the user exists
         const user = await prisma.admins.findUnique({
             where: { email },
         });
 
         if (!user) {
-            return {
-                errors: { email: ["This email does not exist."] },
-                values: formValues,
-            };
+            return { errors: { email: ["This email does not exist."] }, values: formValues };
         }
 
-        // Compare the provided password with the hashed password in the database
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return {
-                errors: { password: ["Incorrect password."] },
-                values: formValues,
-            };
+            return { errors: { password: ["Incorrect password."] }, values: formValues };
         }
+        
+        const updatedParticipant = await prisma.admins.update({
+        where: { email },
+        data: {
+            pw: password,
+        },
+    })
 
-        // The createSession function now returns a result instead of redirecting
-        const sessionResult = await createSession(user.id);
+        // --- Call createSession - This function handles setting the cookie ---
+        await createSession(user.id);
+        // --- End call createSession ---
 
-        // Get the cookies store - await if it's a Promise
-            const cookieStore = await Promise.resolve(cookies());
 
-            const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-            cookieStore.set('session', user.toString(), {
-                httpOnly: true,
-                secure: false,
-                expires: expiresAt,
-                sameSite: 'lax',
-                path: '/',
-            });
+        // --- REMOVE THIS BLOCK ---
+        // const cookieStore = await Promise.resolve(cookies());
+        // const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+        // cookieStore.set('session', user.toString(), { // <--- INCORRECT
+        //     httpOnly: true,
+        //     secure: false,
+        //     expires: expiresAt,
+        //     sameSite: 'lax',
+        //     path: '/',
+        // });
+        // --- END REMOVE THIS BLOCK ---
 
-        // Return success message and redirection info
+
+        // Return success message and redirection info for the client component to handle
         return {
             errors: {},
-            values: { email: "", password: "" },
-            message: "Login successful", // Success message
-            redirectTo: "/dashboard",
+            values: { email: "", password: "" }, // Clear form values on success
+            message: "Login successful",
+            redirectTo: "/dashboard", // Signal client to redirect
         };
+
     } catch (error: any) {
         console.error("Error during login:", error);
         return {

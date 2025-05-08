@@ -10,7 +10,14 @@
     "id": 2,
     "name": "Rocklands Cup 2025",
     "category": "Lead",
-    "status": "anstehend",
+    "status": "abgeschlossen",
     "routeCount": "8"
+  },
+  {
+    "id": 2,
+    "name": "KKFN 2025",
+    "category": "Bouldern",
+    "status": "anstehend",
+    "routeCount": "35"
   }
 ]

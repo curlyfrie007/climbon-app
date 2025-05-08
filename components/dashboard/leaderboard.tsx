@@ -9,104 +9,139 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { useParticipantsByStartclass, StartClassType, Result } from "@/hooks/useParticipants"
+// Import the correct types and hooks
+import { useParticipantsByStartclass, StartclassKKFN, ResultKKFN, ParticipantKKFN } from "@/hooks/useParticipants" // Ensure ParticipantKKFN is imported if needed
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Loader2 } from "lucide-react" // Import Loader
 
-// Define a mapping for our tab values to StartClassType
-const tabToStartClassMap: Record<string, StartClassType> = {
-    "männlich": "Maennlich",
-    "weiblich": "Weiblich",
-    "männlichü40": "Maennlich_Ue40",
-    "weiiblichü40": "Weiblich_Ue40"
+// --- Updated Score Calculation ---
+// Calculate score based on completed boulders
+const calculateScore = (participant: ParticipantKKFN): number => {
+    // Add defensive check for results and boulders
+    return participant?.results?.boulders?.filter(b => b === true).length ?? 0;
 };
 
-// Function to format start class to a more readable format
-const formatStartClass = (startclass: StartClassType) => {
+// Helper to get the timestamp for sorting (earlier is better)
+// Returns milliseconds since epoch, or Infinity if no time (ranks last in ties)
+const getSortableTimestamp = (participant: ParticipantKKFN): number => {
+    // Add defensive check
+    if (!participant?.results?.lastUpdateTime) {
+        return Infinity; // Participants with no updates rank last in ties
+    }
+    try {
+        const time = new Date(participant.results.lastUpdateTime).getTime();
+        // Check if the parsed time is valid
+        return isNaN(time) ? Infinity : time;
+    } catch (e) {
+        console.error("Error parsing lastUpdateTime:", participant.results.lastUpdateTime, e);
+        return Infinity; // Handle invalid date strings
+    }
+};
+
+
+// Function to format start class (already correct)
+const formatStartClass = (startclass: StartclassKKFN) => {
     switch (startclass) {
-        case "Maennlich": return "Männlich";
+        case "Männlich": return "Männlich";
         case "Weiblich": return "Weiblich";
-        case "Maennlich_Ue40": return "Männlich Ü40";
-        case "Weiblich_Ue40": return "Weiblich Ü40";
         default: return startclass;
     }
 }
 
 // Component to display leaderboard for a specific start class
-function ClassLeaderboard({ startClass }: { startClass: StartClassType }) {
+function ClassLeaderboard({ startClass }: { startClass: StartclassKKFN }) {
+    // Fetch participants for the specific class
     const { participants, loading, error } = useParticipantsByStartclass(startClass);
-    const [rankedParticipants, setRankedParticipants] = React.useState<any[]>([]);
+    // State should hold ranked participants with the correct type
+    const [rankedParticipants, setRankedParticipants] = React.useState<Array<ParticipantKKFN & { rank: number; score: number }>>([]);
 
     React.useEffect(() => {
         if (participants && participants.length > 0) {
-            // Calculate total score for each participant
+            // Calculate score for each participant
             const participantsWithScore = participants.map(participant => {
-                const score = calculateTotalScore(participant);
+                const score = calculateScore(participant); // Use updated score function
+                const timestamp = getSortableTimestamp(participant);
                 return {
                     ...participant,
-                    totalScore: score,
+                    score: score,
+                    sortTime: timestamp, // Add timestamp for sorting
                 };
             });
 
-            // Sort by score (descending)
-            const sorted = [...participantsWithScore].sort((a, b) => b.totalScore - a.totalScore);
+            // Sort by score (descending), then by time (ascending - earlier is better)
+            const sorted = [...participantsWithScore].sort((a, b) => {
+                if (b.score !== a.score) {
+                    return b.score - a.score; // Higher score first
+                }
+                return a.sortTime - b.sortTime; // Earlier time first for ties
+            });
 
-            // Add rank property
-            const ranked = sorted.map((participant, index) => ({
-                ...participant,
-                rank: index + 1
-            }));
+            // Add rank property - handle ties correctly
+            let currentRank = 0;
+            let lastScore = -1;
+            let lastTime = Infinity;
+            const ranked = sorted.map((participant, index) => {
+                 if (participant.score !== lastScore || participant.sortTime !== lastTime) {
+                    currentRank = index + 1;
+                    lastScore = participant.score;
+                    lastTime = participant.sortTime;
+                }
+                // Ensure the participant object spread here matches ParticipantKKFN structure
+                // and includes the calculated rank and score
+                return {
+                    ...participant, // Spreads ParticipantKKFN fields + score + sortTime
+                    rank: currentRank
+                };
+            });
 
             setRankedParticipants(ranked);
+        } else {
+            setRankedParticipants([]); // Clear if no participants
         }
-    }, [participants]);
-
-    // Calculate total score (zone - attempts for each route)
-    const calculateTotalScore = (participant: any) => {
-        const results = participant.results;
-        let totalScore = 0;
-
-        for (let i = 1; i <= 8; i++) {
-            const routeKey = `Route${i}` as keyof Result;
-            totalScore += Math.max(0, results[routeKey].zone - results[routeKey].attempts);
-        }
-
-        return totalScore;
-    }
+    }, [participants]); // Rerun effect when participants data changes
 
     return (
         <>
-            
+            {/* Removed CardHeader with PDF button from here, moved to parent */}
             <CardContent className="px-0 pt-4">
                 {loading ? (
-                    <div className="flex justify-center p-4">Lädt...</div>
+                    <div className="flex justify-center items-center p-10"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
                 ) : error ? (
-                    <div className="text-red-500 p-4">Fehler beim Laden der Teilnehmer</div>
+                    <div className="text-red-500 p-4 text-center">Fehler beim Laden: {error}</div>
                 ) : (
                     <div className="rounded-md border">
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-16">Rang</TableHead>
+                                    <TableHead className="w-16 text-center">Rang</TableHead>
                                     <TableHead>Name</TableHead>
-                                    <TableHead>Punkte</TableHead>
+                                    <TableHead className="text-center">Tops</TableHead> {/* Updated Header */}
+                                    <TableHead className="text-center">Zuletzt Aktualisiert</TableHead> {/* New Header */}
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {rankedParticipants.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={3} className="h-24 text-center">
-                                            Keine Teilnehmer gefunden.
+                                        <TableCell colSpan={4} className="h-24 text-center">
+                                            Keine Teilnehmer in dieser Klasse gefunden.
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     rankedParticipants.map((participant) => (
                                         <TableRow key={participant.id}>
-                                            <TableCell className="font-medium">
+                                            <TableCell className="font-medium text-center">
                                                 {participant.rank}
                                             </TableCell>
                                             <TableCell>{participant.name}</TableCell>
-                                            <TableCell>{participant.totalScore}</TableCell>
+                                            {/* Display score (tops) / target */}
+                                            <TableCell className="text-center">{participant.score}/{participant.startclass === 'Weiblich' ? 30 : 35}</TableCell>
+                                            {/* Display last update time */}
+                                            <TableCell className="text-center text-sm text-muted-foreground">
+                                                 {participant.results?.lastUpdateTime
+                                                    ? new Date(participant.results.lastUpdateTime).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+                                                    : '-'}
+                                            </TableCell>
                                         </TableRow>
                                     ))
                                 )}
@@ -119,33 +154,38 @@ function ClassLeaderboard({ startClass }: { startClass: StartClassType }) {
     );
 }
 
+// Main component displayed on the page
 export function LeaderboardTable() {
-    const [activeTab, setActiveTab] = React.useState("männlich");
+    // Default to 'Männlich', ensure type matches StartclassKKFN
+    const [activeTab, setActiveTab] = React.useState<StartclassKKFN>("Männlich");
 
     return (
-        <Tabs 
-            defaultValue="männlich" 
+        <Tabs
+            value={activeTab} // Controlled component
             className="pt-5"
-            onValueChange={setActiveTab}
+            onValueChange={(value) => setActiveTab(value as StartclassKKFN)} // Update state on change
         >
             <TabsList>
-                <TabsTrigger value="männlich">Männlich</TabsTrigger>
-                <TabsTrigger value="weiblich">Weiblich</TabsTrigger>
-                <TabsTrigger value="männlichü40">Männlich Ü40</TabsTrigger>
-                <TabsTrigger value="weiiblichü40">Weiblich Ü40</TabsTrigger>
+                {/* Use correct values matching StartclassKKFN */}
+                <TabsTrigger value="Männlich">Männlich</TabsTrigger>
+                <TabsTrigger value="Weiblich">Weiblich</TabsTrigger>
+                {/* Remove Ü40 tabs */}
             </TabsList>
-            <TabsContent value="männlich">
-                <ClassLeaderboard startClass="Maennlich" />
+            <TabsContent value="Männlich">
+                {/* Pass the correct StartclassKKFN value */}
+                <ClassLeaderboard startClass="Männlich" />
             </TabsContent>
-            <TabsContent value="weiblich">
+            <TabsContent value="Weiblich">
+                {/* Pass the correct StartclassKKFN value */}
                 <ClassLeaderboard startClass="Weiblich" />
             </TabsContent>
-            <TabsContent value="männlichü40">
-                <ClassLeaderboard startClass="Maennlich_Ue40" />
-            </TabsContent>
-            <TabsContent value="weiiblichü40">
-                <ClassLeaderboard startClass="Weiblich_Ue40" />
-            </TabsContent>
+            {/* Remove Ü40 Tab Contents */}
         </Tabs>
     )
 }
+
+// Note: The LeaderboardTableDashboard component and its PDF generation logic
+// were removed as they seemed specific to the admin dashboard context
+// and were causing confusion with the separate LeaderboardTable component
+// used on the public event page. If PDF generation is needed here,
+// it should be added back carefully within the LeaderboardTable structure.

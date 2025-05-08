@@ -40,19 +40,19 @@ export default function ParticipantLogin() {
         const success = await login(name, secret)
         if (success) {
             // Redirect to the editor
-            router.push("/event/RocklandsCup2025/participant/editor")
+            router.push("/event/KKFN2025/participant/editor")
         }
     }
 
     return (
         <div className="container mx-auto py-10">
-            <h1 className="px-6 text-2xl font-bold mx-auto max-w-md">Rocklands Cup 2025</h1>
+            <h1 className="px-6 text-2xl font-bold mx-auto max-w-md">KKFN 2025</h1>
             <div className="max-w-md mx-auto">
                 <Card className="shadow-none border-0">
                     <CardHeader>
                         <CardTitle>Teilnehmer Anmeldung</CardTitle>
                         <CardDescription>
-                            Bitte geben Sie Ihren Namen und Zugangsschlüssel ein, um Ihre Ergebnisse zu bearbeiten.
+                            Bitte gib deinen Namen und Zugangsschlüssel ein, um deine Ergebnisse zu bearbeiten.
                         </CardDescription>
                     </CardHeader>
                     <form onSubmit={handleSubmit}>
@@ -61,7 +61,7 @@ export default function ParticipantLogin() {
                                 <Label htmlFor="name">Name</Label>
                                 <Input
                                     id="name"
-                                    placeholder="Ihr vollständiger Name"
+                                    placeholder="Dein vollständiger Name"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     required
@@ -72,7 +72,7 @@ export default function ParticipantLogin() {
                                 <Input
                                     id="secret"
                                     type="text"
-                                    placeholder="Ihr Schlüssel"
+                                    placeholder="Dein Schlüssel"
                                     value={secret}
                                     onChange={(e) => setSecret(e.target.value)}
                                     required
@@ -80,7 +80,7 @@ export default function ParticipantLogin() {
                             </div>
                             {error && (
                                 <div className="text-sm text-red-500 pt-1">
-                                    Login fehlgeschlagen. Bitte überprüfen Sie Ihre Eingaben.
+                                    Login fehlgeschlagen. Bitte überprüfe deine Eingaben.
                                 </div>
                             )}
                         </CardContent>
@@ -89,7 +89,7 @@ export default function ParticipantLogin() {
                                 {loading ? "Anmeldung läuft..." : "Anmelden"}
                             </Button>
                             <div className="text-sm text-center">
-                                <p>Noch nicht registriert? <Link href="/event/RocklandsCup2025/participant/register" className="text-blue-500 font-bold hover:underline">Jetzt registrieren</Link></p>
+                                <p>Noch nicht registriert? <Link href="/event/KKFN2025/participant/register" className="text-blue-500 font-bold hover:underline">Jetzt registrieren</Link></p>
                             </div>
                         </CardFooter>
                     </form>

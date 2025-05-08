@@ -57,14 +57,14 @@ const data = {
   ],
   navMain: [
     {
-      title: "Rocklands Cup 2025",
-      url: "/dashboard/event/RocklandsCup2025",
+      title: "KKFN 2025",
+      url: "/dashboard/event/KKFN2025",
       icon: ChartNoAxesGantt,
       isActive: false,
       items: [
         {
           title: "Übersicht",
-          url: "/dashboard/event/RocklandsCup2025"
+          url: "/dashboard/event/KKFN2025"
         },
       ]
     },
@@ -154,7 +154,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.archive} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        {/*<NavUser user={data.user} />*/}
       </SidebarFooter>
     </Sidebar>
   )

@@ -1,5 +1,5 @@
 // File: /app/api/dashboard/participants/update-results/route.ts
-import { NextRequest, NextResponse } from 'next/server'
+/*import { NextRequest, NextResponse } from 'next/server'
 import { updateParticipantResults } from '@/lib/participantMgmt'
 import { PrismaClient } from '@prisma/client'
 
@@ -65,4 +65,4 @@ export async function PUT(request: NextRequest) {
             { status: 500 }
         )
     }
-}
+}*/

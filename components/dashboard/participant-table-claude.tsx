@@ -12,6 +12,7 @@ import {
     getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
+    Row, // Import Row type
 } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, MoreHorizontal, Trash2, Plus, Copy } from "lucide-react"
 
@@ -44,7 +45,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
+    // AlertDialogTrigger, // Not needed if triggered programmatically
 } from "@/components/ui/alert-dialog"
 import {
     Dialog,
@@ -55,15 +56,8 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
-import {
-    Form,
-    FormControl,
-    FormDescription,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form"
+// Form related imports might not be needed if Edit dialog is removed
+// import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import {
     Select,
     SelectContent,
@@ -72,12 +66,34 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { showParticipantKey } from "./participantKey"
-import { useParticipantManager, StartClassType, Result, useDeleteParticipant } from "@/hooks/useParticipants"
+import { showParticipantKey } from "./participantKey" // Assuming this component is updated or still relevant
+// Corrected Imports for hooks and types
+import { useParticipantManager, StartclassKKFN, ResultKKFN, ParticipantKKFN } from "@/hooks/useParticipants";
 import { toast } from "sonner"
 import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight } from "@tabler/icons-react"
 import { Badge } from "../ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
+import { Loader2 } from "lucide-react" // For loading states
+
+// Helper function to calculate completed boulders
+const calculateCompletedBoulders = (participant: ParticipantKKFN): number => {
+    return participant.results?.boulders?.filter(b => b).length ?? 0;
+};
+
+// Helper function to format last update time
+const formatLastUpdate = (participant: ParticipantKKFN): string => {
+    if (!participant.results?.lastUpdateTime) {
+        return "N/A";
+    }
+    try {
+        return new Date(participant.results.lastUpdateTime).toLocaleString('de-DE', {
+            year: '2-digit', month: '2-digit', day: '2-digit',
+            hour: '2-digit', minute: '2-digit'
+        });
+    } catch (e) {
+        return "Invalid Date";
+    }
+};
 
 export function ParticipantsTable() {
     // State for the table
@@ -89,30 +105,23 @@ export function ParticipantsTable() {
 
     // State for dialogs
     const [addDialogOpen, setAddDialogOpen] = React.useState(false)
-    const [editResultsDialogOpen, setEditResultsDialogOpen] = React.useState(false)
-    const [selectedParticipant, setSelectedParticipant] = React.useState<string | null>(null)
+    // Remove state related to Edit Results dialog
+    // const [editResultsDialogOpen, setEditResultsDialogOpen] = React.useState(false)
+    // const [selectedParticipant, setSelectedParticipant] = React.useState<string | null>(null)
     const [confirmDeleteDialogOpen, setConfirmDeleteDialogOpen] = React.useState(false)
-    const [participantToDelete, setParticipantToDelete] = React.useState<string | null>(null)
+    const [participantToDelete, setParticipantToDelete] = React.useState<ParticipantKKFN | null>(null) // Store full participant for context
 
     // New participant form state
     const [newParticipant, setNewParticipant] = React.useState({
         name: "",
-        startclass: "Maennlich" as StartClassType,
+        startclass: "Männlich" as StartclassKKFN, // Use correct type and default
         secret: ""
     })
 
-    // Edit results form state
-    const [editResults, setEditResults] = React.useState<{
-        route: string;
-        zone: number;
-        attempts: number;
-    }>({
-        route: "Route1",
-        zone: 0,
-        attempts: 0
-    })
+    // Remove state for Edit Results form
+    // const [editResults, setEditResults] = React.useState(...)
 
-    // Get participants data and functions from the custom hook
+    // Get participants data and functions from the updated custom hook
     const {
         participants,
         participantsLoading,
@@ -120,198 +129,116 @@ export function ParticipantsTable() {
         refetchParticipants,
         createParticipant,
         createLoading,
-        updateResults,
-        updateLoading
-    } = useParticipantManager()
+        // updateBoulderResult, // Renamed function from the hook
+        // updateLoading, // Use createLoading or deleteLoading as appropriate
+        deleteParticipant, // Get delete function from manager hook
+        deleteLoading, // Get delete loading state
+        // deleteError // Get delete error state if needed
+    } = useParticipantManager() // Use the combined manager hook
 
-    // Add the delete hook
-    const {
-        deleteParticipant,
-        loading: deleteLoading,
-        error: deleteError
-    } = useDeleteParticipant()
-
-    // Fetch participants on component mount
+    // Fetch participants on component mount (no change needed)
     React.useEffect(() => {
         refetchParticipants()
-    }, [refetchParticipants])
+    }, [refetchParticipants]) // Dependency array should just be refetchParticipants
 
-    const formatStartClass = (startclass: StartClassType) => {
+    // Format start class (only M/W needed now)
+    const formatStartClass = (startclass: StartclassKKFN) => {
         switch (startclass) {
-            case "Maennlich": return "Männlich";
+            case "Männlich": return "Männlich";
             case "Weiblich": return "Weiblich";
-            case "Maennlich_Ue40": return "Männlich Ü40";
-            case "Weiblich_Ue40": return "Weiblich Ü40";
-            default: return startclass;
+            default: return startclass; // Fallback
         }
     }
-    const copyID = (id: string) => {
-        navigator.clipboard.writeText(id);
-    }
 
-    // Define table columns
-    const columns: ColumnDef<any>[] = [
-        //Select
+    // Define table columns for KKFN2025
+    const columns: ColumnDef<ParticipantKKFN>[] = [
+        // Select (no change needed)
         {
             id: "select",
-            header: ({ table }) => (
-                <Checkbox
-                    checked={
-                        table.getIsAllPageRowsSelected() ||
-                        (table.getIsSomePageRowsSelected() && "indeterminate")
-                    }
-                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                    aria-label="Select all"
-                />
-            ),
-            cell: ({ row }) => (
-                <Checkbox
-                    checked={row.getIsSelected()}
-                    onCheckedChange={(value) => row.toggleSelected(!!value)}
-                    aria-label="Select row"
-                />
-            ),
-            enableSorting: true,
+            header: ({ table }) => (<Checkbox checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")} onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)} aria-label="Select all"/>),
+            cell: ({ row }) => (<Checkbox checked={row.getIsSelected()} onCheckedChange={(value) => row.toggleSelected(!!value)} aria-label="Select row"/>),
+            enableSorting: false, // Usually selection columns aren't sortable
             enableHiding: false,
         },
-        //Name
+        // Name (no change needed)
         {
             accessorKey: "name",
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    >
-                        Name
-                        <ArrowUpDown className="ml-2 h-4 w-4" />
-                    </Button>
-                )
-            },
+            header: ({ column }) => (<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>Name <ArrowUpDown className="ml-2 h-4 w-4" /></Button>),
             cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
         },
-        //Startclass
+        // Startclass (update formatting)
         {
             accessorKey: "startclass",
-            header: ({ column }) => (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Startklasse
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            ),
-            cell: ({ row }) => {
-                return <div className="font-medium"><Badge variant={"outline"}>{formatStartClass(row.getValue("startclass"))}</Badge></div>
+            header: ({ column }) => (<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>Startklasse <ArrowUpDown className="ml-2 h-4 w-4" /></Button>),
+            cell: ({ row }) => (<div className="font-medium"><Badge variant={"outline"}>{formatStartClass(row.getValue("startclass"))}</Badge></div>),
+            filterFn: (row, id, value) => { // Add filter function for exact match
+                 return value.includes(row.getValue(id))
             },
         },
-        //Routes Completed
+        // Completed Boulders (New Column)
         {
-            accessorKey: "routesCompleted",
+            accessorKey: "completedBoulders", // Use a descriptive key
             header: ({ column }) => (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Abgeschlossene Routen
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                    Tops
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
+            // Calculate value using helper function
+            accessorFn: (row) => calculateCompletedBoulders(row),
             cell: ({ row }) => {
-                const completed = calculateRoutesCompleted(row.original);
-                return <div className="font-medium">{completed}/8</div>;
+                const completed = calculateCompletedBoulders(row.original);
+                const total = row.original.startclass === 'Weiblich' ? 30 : 35; // Target for finals
+                return <div className="font-medium text-center">{completed}/{total}</div>; // Display count / target
             },
-            accessorFn: (row) => calculateRoutesCompleted(row),
+            sortingFn: 'basic', // Use basic number sorting
         },
-        //Total Score
-        {
-            accessorKey: "totalScore",
+        // Last Update Time (New Column)
+         {
+            accessorKey: "lastUpdate", // Use a descriptive key
             header: ({ column }) => (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Score
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+                    Letztes Update
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
             ),
+            // Format value using helper function
+            accessorFn: (row) => row.results?.lastUpdateTime ? new Date(row.results.lastUpdateTime).getTime() : 0, // Sort by timestamp
             cell: ({ row }) => {
-                const score = calculateTotalScore(row.original);
-                return <div className="font-medium">{score}</div>;
+                const formattedTime = formatLastUpdate(row.original);
+                return <div className="font-medium text-center">{formattedTime}</div>;
             },
-            accessorFn: (row) => calculateTotalScore(row),
+            sortingFn: 'datetime', // Use datetime sorting
         },
-        //Rank
-        {
-            accessorKey: "rank",
-            header: ({ column }) => (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Rang
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            ),
-            cell: ({ row }) => {
-                // Calculate rank based on row index in sorted table
-                const allScores = participants.map(p => ({
-                    id: p.id,
-                    score: calculateTotalScore(p)
-                })).sort((a, b) => b.score - a.score); // Sort descending by score
-
-                const rank = allScores.findIndex(item => item.id === row.original.id) + 1;
-                return <div className="font-medium">{rank}</div>;
-            },
-            accessorFn: (row) => {
-                // For sorting purposes, we'll use the negative score (higher score = lower rank number = better rank)
-                return -calculateTotalScore(row);
-            },
-        },
-        //Registration Date
+        // Registration Date (no change needed, but ensure accessorKey matches ParticipantKKFN)
         {
             accessorKey: "registrationDate",
-            header: ({ column }) => (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    className="text-left"
-                >
-                    Registriert am
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            ),
+            header: ({ column }) => (<Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="text-left">Registriert am <ArrowUpDown className="ml-2 h-4 w-4" /></Button>),
             cell: ({ row }) => {
-                const date = new Date(row.getValue("registrationDate"))
-                return <div className="text-left font-medium">{date.toLocaleString('de-DE', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                })}</div>
+                const date = row.getValue("registrationDate") as Date; // Cast to Date
+                return <div className="text-left font-medium">{date.toLocaleString('de-DE', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false })}</div>
             },
+            sortingFn: 'datetime', // Use datetime sorting
         },
-        //ID
+        // ID (no change needed)
         {
             accessorKey: "id",
             header: "ID",
             cell: ({ row }) => (
                 <TooltipProvider>
                     <Tooltip>
-                        <TooltipTrigger>
-                            <div className="capitalize">{(String(row.getValue("id")).slice(0,8)+"...")}</div>
+                        <TooltipTrigger asChild>
+                             <Button variant="ghost" size="sm" className="px-2" onClick={() => Copy(row.getValue("id"))}>
+                                {(String(row.getValue("id")).slice(0,8)+"...")}
+                                <Copy className="ml-2 h-3 w-3"/>
+                             </Button>
                         </TooltipTrigger>
-                        <TooltipContent className="flex flex-row items-center gap-2">
-                            <p className="text-sm">{row.getValue("id")}</p>
-                        </TooltipContent>
+                        <TooltipContent><p>{row.getValue("id")}</p></TooltipContent>
                     </Tooltip>
                 </TooltipProvider>
             ),
         },
-        //Actions
+        // Actions (Remove Edit Results)
         {
             id: "actions",
             enableHiding: false,
@@ -328,24 +255,17 @@ export function ParticipantsTable() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuItem className="hover:cursor-pointer"
-                                onClick={() => showParticipantKey(participant.secret)}
+                                onClick={() => showParticipantKey(participant.secret)} // Ensure showParticipantKey is adapted if needed
                             >
                                 Zugangsschlüssel
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                                className="hover:cursor-pointer"
-                                onClick={() => {
-                                    setSelectedParticipant(participant.id)
-                                    setEditResultsDialogOpen(true)
-                                }}
-                            >
-                                Ergebnisse Bearbeiten
-                            </DropdownMenuItem>
+                            {/* Remove Edit Results Item */}
+                            {/* <DropdownMenuItem ... > Ergebnisse Bearbeiten </DropdownMenuItem> */}
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
-                                className="hover:cursor-pointer text-red-500"
+                                className="hover:cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-100/10"
                                 onClick={() => {
-                                    setParticipantToDelete(participant.id)
+                                    setParticipantToDelete(participant) // Store participant object
                                     setConfirmDeleteDialogOpen(true)
                                 }}
                             >
@@ -358,9 +278,9 @@ export function ParticipantsTable() {
         },
     ]
 
-    // Initialize table with data
+    // Initialize table with data and updated types
     const table = useReactTable({
-        data: participants,
+        data: participants, // Already ParticipantKKFN[] from the hook
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -377,276 +297,180 @@ export function ParticipantsTable() {
             rowSelection,
             globalFilter,
         },
-        filterFns: {
-            fuzzy: (row, columnId, value) => {
-                const itemRank = String(row.getValue(columnId))
-                    .toLowerCase()
-                    .indexOf(String(value).toLowerCase())
-                return itemRank !== -1
-            },
+        // Remove fuzzy filter if not needed or adapt
+        // filterFns: { ... },
+        globalFilterFn: (row: Row<ParticipantKKFN>, columnId: string, filterValue: string) => {
+             const value = row.getValue(columnId);
+             // Handle different types for global filter
+             if (typeof value === 'string') {
+                 return value.toLowerCase().includes(filterValue.toLowerCase());
+             }
+             if (typeof value === 'number') {
+                 return value.toString().includes(filterValue);
+             }
+             if (value instanceof Date) {
+                  return value.toLocaleString('de-DE').includes(filterValue);
+             }
+             // Add more type checks if needed for other columns
+             return false;
         },
-        globalFilterFn: (row, columnId, filterValue) => {
-            const value = row.getValue(columnId)
-            return value !== undefined
-                ? String(value)
-                    .toLowerCase()
-                    .includes(String(filterValue).toLowerCase())
-                : false
-        },
+        // Enable filtering per column if desired
+        // enableColumnFilters: true,
+        // onGlobalFilterChange: setGlobalFilter, // Use state for global filter
     })
 
-    // Handle global search
+    // Handle global search (no change needed)
     const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value
-        setGlobalFilter(value)
+        setGlobalFilter(e.target.value ?? '')
     }
 
-    // Handle new participant form submission
+    // Handle new participant form submission (update startclass type)
     const handleAddParticipant = async (e: React.FormEvent) => {
         e.preventDefault()
+        // Basic validation
+        if (!newParticipant.name.trim() || !newParticipant.secret.trim()) {
+             toast.warning("Fehlende Angaben", { description: "Name und Zugangsschlüssel sind erforderlich." });
+             return;
+        }
         try {
-            await createParticipant(
-                newParticipant.name,
-                newParticipant.startclass,
-                newParticipant.secret
+            const created = await createParticipant(
+                newParticipant.name.trim(),
+                newParticipant.startclass, // Already correct type
+                newParticipant.secret.trim()
             )
-            setAddDialogOpen(false)
-            setNewParticipant({
-                name: "",
-                startclass: "Maennlich",
-                secret: ""
-            })
-            refetchParticipants()
-            toast("Teilnehmer hinzugefügt", {
-                description: `${newParticipant.name} wurde erfolgreich registriert.`,
-            })
-        } catch (error) {
-            toast.error("Fehler", {
-                description: "Der Teilnehmer konnte nicht hinzugefügt werden.",
-            })
+            if (created) {
+                setAddDialogOpen(false)
+                setNewParticipant({ name: "", startclass: "Männlich", secret: "" }) // Reset form
+                refetchParticipants() // Refresh table data
+                toast.success("Teilnehmer hinzugefügt", {
+                    description: `${created.name} wurde erfolgreich registriert.`,
+                })
+            } else {
+                 // Error state should be set by the hook if it returns null
+                 toast.error("Fehler", { description: "Teilnehmer konnte nicht erstellt werden (möglicherweise existiert der Schlüssel bereits?)." });
+            }
+        } catch (error) { // Catch unexpected errors
+            console.error("Error creating participant:", error);
+            toast.error("Fehler", { description: "Ein unerwarteter Fehler ist aufgetreten." });
         }
     }
 
-    // Handle edit results form submission
-    const handleUpdateResults = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!selectedParticipant) return
+    // Remove handleUpdateResults function and related logic
 
-        const routeNumber = parseInt(editResults.route.replace("Route", ""), 10)
-
-        try {
-            await updateResults(
-                selectedParticipant,
-                routeNumber,
-                editResults.zone,
-                editResults.attempts
-            )
-            setEditResultsDialogOpen(false)
-            refetchParticipants()
-            toast("Ergebnisse aktualisiert", {
-                description: `Die Ergebnisse wurden erfolgreich aktualisiert.`,
-            })
-        } catch (error) {
-            toast.error("Fehler", {
-                description: "Die Ergebnisse konnten nicht aktualisiert werden.",
-            })
-        }
-    }
-
-    // Handle delete participant
+    // Handle delete participant (use delete function from manager hook)
     const handleDeleteParticipant = async () => {
         if (!participantToDelete) return;
 
         try {
-            const success = await deleteParticipant(participantToDelete);
+            const success = await deleteParticipant(participantToDelete.id); // Call hook function
             setConfirmDeleteDialogOpen(false);
             if (success) {
-                refetchParticipants();
-                toast("Teilnehmer gelöscht", {
-                    description: "Der Teilnehmer wurde erfolgreich gelöscht.",
+                refetchParticipants(); // Refresh table
+                toast.success("Teilnehmer gelöscht", {
+                    description: `Teilnehmer ${participantToDelete.name} wurde erfolgreich gelöscht.`,
                 });
+                setParticipantToDelete(null); // Clear selection
+            } else {
+                 // Error state might be set in the hook, or handle generic failure
+                 toast.error("Fehler", { description: `Teilnehmer ${participantToDelete.name} konnte nicht gelöscht werden.` });
             }
-        } catch (error) {
-            toast.error("Fehler", {
-                description: "Der Teilnehmer konnte nicht gelöscht werden.",
-            });
+        } catch (error) { // Catch unexpected errors
+             console.error("Error deleting participant:", error);
+             toast.error("Fehler", { description: "Ein unerwarteter Fehler ist aufgetreten." });
         }
+         setParticipantToDelete(null); // Clear selection even on error
     }
 
-    // Get the selected participant's data
-    const getSelectedParticipantData = () => {
-        if (!selectedParticipant) return null
-        return participants.find(p => p.id === selectedParticipant)
-    }
-
-    // When a participant is selected for editing, initialize the form with their data
-    React.useEffect(() => {
-        if (selectedParticipant) {
-            const participant = getSelectedParticipantData()
-            if (participant) {
-                // Initialize with Route1 data
-                setEditResults({
-                    route: "Route1",
-                    zone: participant.results.Route1.zone,
-                    attempts: participant.results.Route1.attempts
-                })
-            }
-        }
-    }, [selectedParticipant])
-
-    // Handle route change in edit form
-    const handleRouteChange = (value: string) => {
-        const participant = getSelectedParticipantData()
-        if (participant) {
-            const routeKey = value as keyof Result
-            setEditResults({
-                route: value,
-                zone: participant.results[routeKey].zone,
-                attempts: participant.results[routeKey].attempts
-            })
-        }
-    }
-
-    const calculateRoutesCompleted = (participant: any) => {
-        const results = participant.results;
-        let completed = 0;
-
-        // Count routes where zone > 0
-        for (let i = 1; i <= 8; i++) {
-            const routeKey = `Route${i}` as keyof Result;
-            if (results[routeKey].zone > 0) {
-                completed++;
-            }
-        }
-
-        return completed;
-    }
-
-    const calculateTotalScore = (participant: any) => {
-        const results = participant.results;
-        let totalScore = 0;
-
-        // Calculate score for each route (zone - attempts)
-        for (let i = 1; i <= 8; i++) {
-            const routeKey = `Route${i}` as keyof Result;
-            totalScore += Math.max(0, results[routeKey].zone - results[routeKey].attempts);
-        }
-
-        return totalScore;
-    }
+    // Remove functions related to Edit Results dialog
+    // const getSelectedParticipantData = () => { ... }
+    // React.useEffect(() => { ... }, [selectedParticipant]) // Effect for edit dialog
+    // const handleRouteChange = (value: string) => { ... }
 
     return (
-        <div className="w-full">
-            <h1 className="text-4xl text-bold">Teilnehmer</h1>
+        <div className="w-full p-4"> {/* Added padding */}
+            <h1 className="text-3xl font-bold mb-4">Teilnehmer Verwaltung</h1> {/* Adjusted heading */}
 
             {/* Filters and controls */}
-            <div className="flex items-center justify-start py-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 py-4"> {/* Use flex-wrap and gap */}
                 <Input
-                    placeholder="Suchen..."
+                    placeholder="Suchen (Name, Klasse, ID...)" // Updated placeholder
                     value={globalFilter}
                     onChange={handleSearch}
-                    className="max-w-sm"
+                    className="max-w-sm h-9" // Adjusted size
                 />
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="outline" className="ml-2">
-                            Spalten <ChevronDown className="ml-1 h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        {table
-                            .getAllColumns()
-                            .filter((column) => column.getCanHide())
-                            .map((column) => {
-                                return (
+                <div className="flex gap-2"> {/* Group buttons */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" className="ml-auto"> {/* Use size="sm" */}
+                                Spalten <ChevronDown className="ml-1 h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {table.getAllColumns()
+                                .filter((column) => column.getCanHide())
+                                .map((column) => (
                                     <DropdownMenuCheckboxItem
                                         key={column.id}
                                         className="capitalize"
                                         checked={column.getIsVisible()}
-                                        onCheckedChange={(value) =>
-                                            column.toggleVisibility(!!value)
-                                        }
+                                        onCheckedChange={(value) => column.toggleVisibility(!!value)}
                                     >
-                                        {column.id}
+                                        {/* Improve display names */}
+                                        {column.id === 'completedBoulders' ? 'Tops' :
+                                         column.id === 'lastUpdate' ? 'Letztes Update' :
+                                         column.id === 'registrationDate' ? 'Registriert am' :
+                                         column.id}
                                     </DropdownMenuCheckboxItem>
-                                )
-                            })}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                                ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
 
-                {/* Add participant dialog trigger */}
-                <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button className="ml-auto">
-                            <Plus className="mr-2 h-4 w-4" />Teilnehmer hinzufügen
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Neuen Teilnehmer hinzufügen</DialogTitle>
-                            <DialogDescription>
-                                Tragen Sie die Daten des neuen Teilnehmers ein.
-                            </DialogDescription>
-                        </DialogHeader>
-
-                        <form onSubmit={handleAddParticipant}>
-                            <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="name" className="text-right">
-                                        Name
-                                    </Label>
-                                    <Input
-                                        id="name"
-                                        value={newParticipant.name}
-                                        onChange={(e) => setNewParticipant({ ...newParticipant, name: e.target.value })}
-                                        className="col-span-3"
-                                        required
-                                    />
+                    {/* Add participant dialog trigger */}
+                    <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button size="sm"> {/* Use size="sm" */}
+                                <Plus className="mr-2 h-4 w-4" />Teilnehmer
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Neuen Teilnehmer hinzufügen</DialogTitle>
+                                <DialogDescription>
+                                    Tragen Sie die Daten des neuen Teilnehmers ein. Der Zugangsschlüssel wird für den Login benötigt.
+                                </DialogDescription>
+                            </DialogHeader>
+                            {/* Add Participant Form */}
+                            <form onSubmit={handleAddParticipant} className="space-y-4">
+                                <div>
+                                    <Label htmlFor="name">Name</Label>
+                                    <Input id="name" value={newParticipant.name} onChange={(e) => setNewParticipant({ ...newParticipant, name: e.target.value })} required disabled={createLoading}/>
                                 </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="startclass" className="text-right">
-                                        Startklasse
-                                    </Label>
-                                    <Select
-                                        value={newParticipant.startclass}
-                                        onValueChange={(value) => setNewParticipant({ ...newParticipant, startclass: value as StartClassType })}
-                                    >
-                                        <SelectTrigger className="col-span-3">
-                                            <SelectValue placeholder="Wählen Sie eine Klasse" />
-                                        </SelectTrigger>
+                                <div>
+                                    <Label htmlFor="startclass">Startklasse</Label>
+                                    <Select value={newParticipant.startclass} onValueChange={(value) => setNewParticipant({ ...newParticipant, startclass: value as StartclassKKFN })} disabled={createLoading}>
+                                        <SelectTrigger id="startclass"><SelectValue placeholder="Wählen Sie eine Klasse" /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="Maennlich">Männlich</SelectItem>
+                                            {/* Updated start classes */}
+                                            <SelectItem value="Männlich">Männlich</SelectItem>
                                             <SelectItem value="Weiblich">Weiblich</SelectItem>
-                                            <SelectItem value="Maennlich_Ue40">Männlich Ü40</SelectItem>
-                                            <SelectItem value="Weiblich_Ue40">Weiblich Ü40</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="secret" className="text-right">
-                                        Zugangsschlüssel
-                                    </Label>
-                                    <Input
-                                        id="secret"
-                                        type="text"
-                                        value={newParticipant.secret}
-                                        onChange={(e) => setNewParticipant({ ...newParticipant, secret: e.target.value })}
-                                        className="col-span-3"
-                                        required
-                                    />
+                                <div>
+                                    <Label htmlFor="secret">Zugangsschlüssel</Label>
+                                    <Input id="secret" type="text" value={newParticipant.secret} onChange={(e) => setNewParticipant({ ...newParticipant, secret: e.target.value })} required disabled={createLoading}/>
                                 </div>
-                            </div>
-                            <DialogFooter>
-                                <Button type="button" variant="outline" onClick={() => setAddDialogOpen(false)}>
-                                    Abbrechen
-                                </Button>
-                                <Button type="submit" disabled={createLoading}>
-                                    {createLoading ? "Speichern..." : "Speichern"}
-                                </Button>
-                            </DialogFooter>
-                        </form>
-                    </DialogContent>
-                </Dialog>
+                                <DialogFooter>
+                                    <Button type="button" variant="outline" onClick={() => setAddDialogOpen(false)} disabled={createLoading}>Abbrechen</Button>
+                                    <Button type="submit" disabled={createLoading}>
+                                        {createLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                        Speichern
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
+                </div>
             </div>
 
             {/* Participants table */}
@@ -655,211 +479,63 @@ export function ParticipantsTable() {
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
-                                {headerGroup.headers.map((header) => {
-                                    return (
-                                        <TableHead key={header.id}>
-                                            {header.isPlaceholder
-                                                ? null
-                                                : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
-                                        </TableHead>
-                                    )
-                                })}
+                                {headerGroup.headers.map((header) => (
+                                    <TableHead key={header.id}>
+                                        {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+                                    </TableHead>
+                                ))}
                             </TableRow>
                         ))}
                     </TableHeader>
                     <TableBody>
                         {participantsLoading ? (
-                            <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    Loading...
-                                </TableCell>
-                            </TableRow>
+                            <TableRow><TableCell colSpan={columns.length} className="h-24 text-center"><Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" /></TableCell></TableRow>
+                        ) : participantsError ? (
+                             <TableRow><TableCell colSpan={columns.length} className="h-24 text-center text-red-600">Fehler beim Laden: {participantsError}</TableCell></TableRow>
                         ) : table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
-                                <TableRow
-                                    key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
-                                >
+                                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </TableCell>
                                     ))}
                                 </TableRow>
                             ))
                         ) : (
-                            <TableRow>
-                                <TableCell
-                                    colSpan={columns.length}
-                                    className="h-24 text-center"
-                                >
-                                    Keine Einträge.
-                                </TableCell>
-                            </TableRow>
+                            <TableRow><TableCell colSpan={columns.length} className="h-24 text-center">Keine Teilnehmer gefunden.</TableCell></TableRow>
                         )}
                     </TableBody>
                 </Table>
             </div>
 
             {/* Pagination */}
-            <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="flex items-center justify-between space-x-2 py-4"> {/* Changed to justify-between */}
                 <div className="flex-1 text-sm text-muted-foreground">
-                    {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                    {table.getFilteredRowModel().rows.length} Einträge(n) ausgewählt.
+                    {table.getFilteredSelectedRowModel().rows.length} von{" "}
+                    {table.getFilteredRowModel().rows.length} Zeile(n) ausgewählt.
                 </div>
-                <div className="hidden items-center gap-2 lg:flex">
-                    <Label htmlFor="rows-per-page" className="text-sm font-medium">
-                        Einträge pro Seite
-                    </Label>
-                    <Select
-                        value={`${table.getState().pagination.pageSize}`}
-                        onValueChange={(value) => {
-                            table.setPageSize(Number(value))
-                        }}
-                    >
-                        <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-                            <SelectValue
-                                placeholder={table.getState().pagination.pageSize}
-                            />
-                        </SelectTrigger>
-                        <SelectContent side="top">
-                            {[10, 20, 30, 40, 50].map((pageSize) => (
-                                <SelectItem key={pageSize} value={`${pageSize}`}>
-                                    {pageSize}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <div className="flex w-fit items-center justify-center text-sm font-medium">
-                    Seite {table.getState().pagination.pageIndex + 1} von{" "}
-                    {table.getPageCount()}
-                </div>
-                <div className="ml-auto flex items-center gap-2 lg:ml-0">
-                    <Button
-                        variant="outline"
-                        className="hidden h-8 w-8 p-0 lg:flex"
-                        onClick={() => table.setPageIndex(0)}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        <span className="sr-only">Go to first page</span>
-                        <IconChevronsLeft />
-                    </Button>
-                    <Button
-                        variant="outline"
-                        className="size-8"
-                        size="icon"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        <span className="sr-only">Go to previous page</span>
-                        <IconChevronLeft />
-                    </Button>
-                    <Button
-                        variant="outline"
-                        className="size-8"
-                        size="icon"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        <span className="sr-only">Go to next page</span>
-                        <IconChevronRight />
-                    </Button>
-                    <Button
-                        variant="outline"
-                        className="hidden size-8 lg:flex"
-                        size="icon"
-                        onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        <span className="sr-only">Go to last page</span>
-                        <IconChevronsRight />
-                    </Button>
+                <div className="flex items-center space-x-2"> {/* Group pagination controls */}
+                     <div className="hidden items-center gap-2 lg:flex"> {/* Rows per page */}
+                        <Label htmlFor="rows-per-page" className="text-sm font-medium whitespace-nowrap">Zeilen pro Seite</Label>
+                        <Select value={`${table.getState().pagination.pageSize}`} onValueChange={(value) => { table.setPageSize(Number(value)) }}>
+                            <SelectTrigger size="sm" className="w-20 h-8" id="rows-per-page"><SelectValue placeholder={table.getState().pagination.pageSize} /></SelectTrigger>
+                            <SelectContent side="top">{ [10, 20, 30, 40, 50].map((pageSize) => (<SelectItem key={pageSize} value={`${pageSize}`}>{pageSize}</SelectItem>)) }</SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex w-fit items-center justify-center text-sm font-medium"> {/* Page x of y */}
+                        Seite {table.getState().pagination.pageIndex + 1} von {table.getPageCount()}
+                    </div>
+                    <div className="flex items-center gap-1"> {/* Navigation buttons */}
+                        <Button variant="outline" className="hidden h-8 w-8 p-0 lg:flex" onClick={() => table.setPageIndex(0)} disabled={!table.getCanPreviousPage()}><span className="sr-only">Erste Seite</span><IconChevronsLeft className="h-4 w-4"/></Button>
+                        <Button variant="outline" className="h-8 w-8 p-0" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}><span className="sr-only">Vorherige Seite</span><IconChevronLeft className="h-4 w-4"/></Button>
+                        <Button variant="outline" className="h-8 w-8 p-0" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}><span className="sr-only">Nächste Seite</span><IconChevronRight className="h-4 w-4"/></Button>
+                        <Button variant="outline" className="hidden h-8 w-8 p-0 lg:flex" onClick={() => table.setPageIndex(table.getPageCount() - 1)} disabled={!table.getCanNextPage()}><span className="sr-only">Letzte Seite</span><IconChevronsRight className="h-4 w-4"/></Button>
+                    </div>
                 </div>
             </div>
 
-            {/* Edit Results Dialog */}
-            <Dialog open={editResultsDialogOpen} onOpenChange={setEditResultsDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Ergebnisse bearbeiten</DialogTitle>
-                        <DialogDescription>
-                            Aktualisieren Sie die Ergebnisse für den Teilnehmer.
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <form onSubmit={handleUpdateResults}>
-                        <div className="grid gap-4 py-4">
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="route" className="text-right">
-                                    Route
-                                </Label>
-                                <Select
-                                    value={editResults.route}
-                                    onValueChange={handleRouteChange}
-                                >
-                                    <SelectTrigger className="col-span-3">
-                                        <SelectValue placeholder="Wählen Sie eine Route" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="Route1">Route 1</SelectItem>
-                                        <SelectItem value="Route2">Route 2</SelectItem>
-                                        <SelectItem value="Route3">Route 3</SelectItem>
-                                        <SelectItem value="Route4">Route 4</SelectItem>
-                                        <SelectItem value="Route5">Route 5</SelectItem>
-                                        <SelectItem value="Route6">Route 6</SelectItem>
-                                        <SelectItem value="Route7">Route 7</SelectItem>
-                                        <SelectItem value="Route8">Route 8</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="zone" className="text-right">
-                                    Zone
-                                </Label>
-                                <Input
-                                    id="zone"
-                                    type="number"
-                                    value={editResults.zone}
-                                    onChange={(e) => setEditResults({ ...editResults, zone: parseInt(e.target.value) })}
-                                    className="col-span-3"
-                                    min="0"
-                                    max="100"
-                                    required
-                                />
-                            </div>
-                            <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="attempts" className="text-right">
-                                    Versuche
-                                </Label>
-                                <Input
-                                    id="attempts"
-                                    type="number"
-                                    value={editResults.attempts}
-                                    onChange={(e) => setEditResults({ ...editResults, attempts: parseInt(e.target.value) })}
-                                    className="col-span-3"
-                                    min="0"
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <DialogFooter>
-                            <Button type="button" variant="outline" onClick={() => setEditResultsDialogOpen(false)}>
-                                Abbrechen
-                            </Button>
-                            <Button type="submit" disabled={updateLoading}>
-                                {updateLoading ? "Speichern..." : "Speichern"}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
+            {/* Remove Edit Results Dialog */}
 
             {/* Confirm Delete Dialog */}
             <AlertDialog open={confirmDeleteDialogOpen} onOpenChange={setConfirmDeleteDialogOpen}>
@@ -867,12 +543,17 @@ export function ParticipantsTable() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Teilnehmer löschen?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Diese Aktion kann nicht rückgängig gemacht werden. Der Teilnehmer wird dauerhaft aus der Datenbank gelöscht.
+                            Soll der Teilnehmer <span className="font-semibold">{participantToDelete?.name ?? ''}</span> wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDeleteParticipant} className="bg-red-500 hover:bg-red-600">
+                        <AlertDialogCancel disabled={deleteLoading}>Abbrechen</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleDeleteParticipant}
+                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground" // Use destructive theme colors
+                            disabled={deleteLoading}
+                        >
+                             {deleteLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Löschen
                         </AlertDialogAction>
                     </AlertDialogFooter>
@@ -881,3 +562,4 @@ export function ParticipantsTable() {
         </div>
     )
 }
+
