@@ -5,7 +5,6 @@ export default function Scorecard(){
     return(
         <div>
             <ShadcnScorecard title="Scorecard" totalTogglesO={35}/>
-            <EventCreationForm/>
         </div>
     )
 }
