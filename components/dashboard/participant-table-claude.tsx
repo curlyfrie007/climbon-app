@@ -188,7 +188,7 @@ export function ParticipantsTable() {
             accessorFn: (row) => calculateCompletedBoulders(row),
             cell: ({ row }) => {
                 const completed = calculateCompletedBoulders(row.original);
-                const total = row.original.startclass === 'Weiblich' ? 30 : 35; // Target for finals
+                const total = row.original.startclass === 'Weiblich' ? 28 : 35; // Target for finals
                 return <div className="font-medium text-center">{completed}/{total}</div>; // Display count / target
             },
             sortingFn: 'basic', // Use basic number sorting

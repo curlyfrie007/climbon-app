@@ -153,7 +153,7 @@ function ClassLeaderboard({ startClass }: { startClass: StartclassKKFN }) {
                 page.drawText(participant.rank.toString(), { x: currentX + 5, y: rowY, size: fontSize, font: helveticaFont }); currentX += colWidths[0];
                 page.drawText(participant.name, { x: currentX + 5, y: rowY, size: fontSize, font: helveticaFont }); currentX += colWidths[1];
                 // Use score (which is now completed boulders count)
-                const totalTarget = participant.startclass === 'Weiblich' ? 30 : 35;
+                const totalTarget = participant.startclass === 'Weiblich' ? 28 : 35;
                 page.drawText(`${participant.score}/${totalTarget}`, { x: currentX + 5, y: rowY, size: fontSize, font: helveticaFont }); currentX += colWidths[2]; // Updated Cell
                 // Format and add last update time
                 const lastUpdateStr = participant.results?.lastUpdateTime
@@ -233,7 +233,7 @@ function ClassLeaderboard({ startClass }: { startClass: StartclassKKFN }) {
                                             </TableCell>
                                             <TableCell>{participant.name}</TableCell>
                                             {/* Use score (completed boulders) */}
-                                            <TableCell className="text-center">{participant.score}/{participant.startclass === 'Weiblich' ? 30 : 35}</TableCell> {/* Updated Cell */}
+                                            <TableCell className="text-center">{participant.score}/{participant.startclass === 'Weiblich' ? 28 : 35}</TableCell> {/* Updated Cell */}
                                             {/* Add last update time cell */}
                                             <TableCell className="text-center text-sm text-muted-foreground">
                                                  {participant.results?.lastUpdateTime
@@ -375,7 +375,7 @@ export function LeaderboardTableDashboard() {
                     let currentX = tableLeft;
                     page.drawText(participant.rank.toString(), { x: currentX + 5, y: yPosition, size: fontSize, font: helveticaFont }); currentX += colWidths[0];
                     page.drawText(participant.name, { x: currentX + 5, y: yPosition, size: fontSize, font: helveticaFont }); currentX += colWidths[1];
-                    const totalTarget = participant.startclass === 'Weiblich' ? 30 : 35;
+                    const totalTarget = participant.startclass === 'Weiblich' ? 28 : 35;
                     page.drawText(`${participant.score}/${totalTarget}`, { x: currentX + 5, y: yPosition, size: fontSize, font: helveticaFont }); currentX += colWidths[2];
                     const lastUpdateStr = participant.results?.lastUpdateTime ? new Date(participant.results.lastUpdateTime).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) : 'N/A';
                     page.drawText(lastUpdateStr, { x: currentX + 5, y: yPosition, size: fontSize, font: helveticaFont });

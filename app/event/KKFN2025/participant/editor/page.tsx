@@ -155,7 +155,7 @@ export default function ParticipantEditorPage() {
     const boulders = localParticipant.results?.boulders ?? Array(35).fill(false);
     const completedCount = boulders.filter(b => b).length;
     const totalBoulders = 35;
-    const bouldersForFinals = localParticipant.startclass === 'Weiblich' ? 30 : 35;
+    const bouldersForFinals = localParticipant.startclass === 'Weiblich' ? 28 : 35;
     // --- End Derived Data ---
 
     // --- Render using localParticipant ---

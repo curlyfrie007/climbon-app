@@ -135,7 +135,7 @@ function ClassLeaderboard({ startClass }: { startClass: StartclassKKFN }) {
                                             </TableCell>
                                             <TableCell>{participant.name}</TableCell>
                                             {/* Display score (tops) / target */}
-                                            <TableCell className="text-center">{participant.score}/{participant.startclass === 'Weiblich' ? 30 : 35}</TableCell>
+                                            <TableCell className="text-center">{participant.score}/{participant.startclass === 'Weiblich' ? 28 : 35}</TableCell>
                                             {/* Display last update time */}
                                             <TableCell className="text-center text-sm text-muted-foreground">
                                                  {participant.results?.lastUpdateTime
