@@ -1,15 +1,25 @@
 // File: /app/api/dashboard/participants/[id]/route.ts
-import { NextRequest, NextResponse } from 'next/server'
-import { getParticipantById, deleteParticipantById } from '@/lib/participantMgmt' // Ensure imports are correct
+import { NextRequest, NextResponse } from 'next/server';
+import { getParticipantById, deleteParticipantById } from '@/lib/participantMgmt'; // Ensure imports are correct
+
+// Define a type for the context object containing params (optional but good practice)
+interface RouteContext {
+    params: {
+        id: string;
+    };
+}
 
 export async function GET(
     request: NextRequest,
-    // Correct signature with destructuring
-    { params }: { params: { id: string } }
+    // Use the defined interface or let Next.js infer the type
+    // Removing the explicit inline type: { params }: { params: { id: string } }
+    context: RouteContext // Use the interface
+    // Or simply: context: { params: { id: string } }
+    // Or even just context and access context.params.id
 ) {
     try {
-        // Access id directly from the destructured params
-        const id = params.id;
+        // Access id via context.params
+        const id = context.params.id;
 
         if (!id) {
             return NextResponse.json({ error: 'Participant ID is required' }, { status: 400 });
@@ -30,12 +40,12 @@ export async function GET(
 
 export async function DELETE(
     request: NextRequest,
-    // Correct signature with destructuring
-    { params }: { params: { id: string } }
+    // Use the defined interface or let Next.js infer the type
+    context: RouteContext // Use the interface
 ) {
     try {
-        // Access id directly from the destructured params
-        const id = params.id;
+        // Access id via context.params
+        const id = context.params.id;
 
         if (!id) {
             return NextResponse.json({ error: 'Participant ID is required' }, { status: 400 });
