@@ -2,24 +2,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getParticipantById, deleteParticipantById } from '@/lib/participantMgmt'; // Ensure imports are correct
 
-// Define a type for the context object containing params (optional but good practice)
-interface RouteContext {
-    params: {
-        id: string;
-    };
-}
+// Define the expected structure directly in the function signature
 
 export async function GET(
     request: NextRequest,
-    // Use the defined interface or let Next.js infer the type
-    // Removing the explicit inline type: { params }: { params: { id: string } }
-    context: RouteContext // Use the interface
-    // Or simply: context: { params: { id: string } }
-    // Or even just context and access context.params.id
+    // Revert to the inline destructuring type annotation
+    { params }: { params: { id: string } }
 ) {
     try {
-        // Access id via context.params
-        const id = context.params.id;
+        // Access id directly from the destructured params
+        const id = params.id;
 
         if (!id) {
             return NextResponse.json({ error: 'Participant ID is required' }, { status: 400 });
@@ -40,12 +32,12 @@ export async function GET(
 
 export async function DELETE(
     request: NextRequest,
-    // Use the defined interface or let Next.js infer the type
-    context: RouteContext // Use the interface
+    // Revert to the inline destructuring type annotation
+    { params }: { params: { id: string } }
 ) {
     try {
-        // Access id via context.params
-        const id = context.params.id;
+        // Access id directly from the destructured params
+        const id = params.id;
 
         if (!id) {
             return NextResponse.json({ error: 'Participant ID is required' }, { status: 400 });
@@ -54,7 +46,8 @@ export async function DELETE(
         const success = await deleteParticipantById(id);
 
         if (!success) {
-            return NextResponse.json({ error: 'Failed to delete participant' }, { status: 500 });
+            // Consider returning 404 if the participant wasn't found for deletion
+            return NextResponse.json({ error: 'Failed to delete participant or participant not found' }, { status: 500 });
         }
 
         return NextResponse.json({ success: true });
