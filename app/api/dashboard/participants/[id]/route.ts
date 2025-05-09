@@ -7,7 +7,7 @@ import { getParticipantById, deleteParticipantById } from '@/lib/participantMgmt
 export async function GET(
     request: NextRequest,
     // Revert to the inline destructuring type annotation
-    { params }: { params: { id: string } }
+    { params }: { params: any }
 ) {
     try {
         // Access id directly from the destructured params
