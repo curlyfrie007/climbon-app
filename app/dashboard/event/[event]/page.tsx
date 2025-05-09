@@ -6,7 +6,6 @@ import { ParticipantsTable } from '@/components/dashboard/participant-table-clau
 import { LeaderboardTable } from '@/components/dashboard/leaderboard';
 import { Card } from '@/components/ui/card';
 import ParticipantManager from '@/components/participantmanager';
-import { CompetitionStatistics } from '@/components/dashboard/stats';
 import { LeaderboardTableDashboard } from '@/components/dashboard/leaderboardDashboard';
 
 
@@ -20,7 +19,6 @@ export default function Auth() {
                 <TabsList className='mb-4'>
                     <TabsTrigger value="participants">Teilnehmer</TabsTrigger>
                     <TabsTrigger value="results">Ergebnisse</TabsTrigger>
-                    <TabsTrigger value="stats">Statistik</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="participants">
@@ -29,9 +27,6 @@ export default function Auth() {
                 <TabsContent value="results" className='w-full'>
                     <h1 className="text-4xl text-bold mb-4">Ergebnisse</h1>
                     <LeaderboardTableDashboard></LeaderboardTableDashboard>
-                </TabsContent>
-                <TabsContent value="stats">
-                    <CompetitionStatistics></CompetitionStatistics>
                 </TabsContent>
 
             </Tabs>
