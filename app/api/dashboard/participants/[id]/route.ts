@@ -33,7 +33,7 @@ export async function GET(
 export async function DELETE(
     request: NextRequest,
     // Revert to the inline destructuring type annotation
-    { params }: { params: { id: string } }
+    { params }: { params: any }
 ) {
     try {
         // Access id directly from the destructured params
