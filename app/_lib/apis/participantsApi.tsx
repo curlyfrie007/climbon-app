@@ -43,12 +43,12 @@ export type Participant = {
     name: string
     registrationDate: Date
     secret: string
-    startclass: "Maennlich" | "Weiblich" | "Maennlich_Ue40" | "Weiblich_Ue40"
+    startclass: "Maennlich" | "Weiblich"
     results: Result
 }
 
 // Create a new participant
-async function createParticipant(name: string, startclass: "Maennlich" | "Weiblich" | "Maennlich_Ue40" | "Weiblich_Ue40", secret: string): Promise<Participant> {
+async function createParticipant(name: string, startclass: "Maennlich" | "Weiblich", secret: string): Promise<Participant> {
     const participant = await prisma.participant.create({
         data: {
             name,
@@ -126,7 +126,7 @@ async function updateParticipantResults(id: string, routeNumber: number, zone: n
 }
 
 // Filter participants by startclass
-async function getParticipantsByStartclass(startclass: "Maennlich" | "Weiblich" | "Maennlich_Ue40" | "Weiblich_Ue40"): Promise<Participant[]> {
+async function getParticipantsByStartclass(startclass: "Maennlich" | "Weiblich"): Promise<Participant[]> {
     const participants = await prisma.participant.findMany({
         where: { startclass },
     })
