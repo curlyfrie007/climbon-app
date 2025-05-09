@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ParticipantsTable } from '@/components/dashboard/participant-table-claude';
 import { LeaderboardTable } from '@/components/dashboard/leaderboard';
 import { Card } from '@/components/ui/card';
-import ParticipantManager from '@/components/participantmanager';
 import { LeaderboardTableDashboard } from '@/components/dashboard/leaderboardDashboard';
 
 
@@ -30,11 +29,7 @@ export default function Auth() {
                 </TabsContent>
 
             </Tabs>
-            {/* <div className="w-full max-w-sm">
-                <p>Post: {pathname[3]}</p>
 
-            </div> */}
-            {/* <ParticipantManager></ParticipantManager> */}
         </div>
     )
 }
